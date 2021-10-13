@@ -1,4 +1,4 @@
-# UE ModelistationPPC-PL
+# UE ModelisationPPC-PL
 
 ## 🎓 Groupe 
 
@@ -7,3 +7,4 @@
 - **D**avide Ferre
 - **D**avide Pizzoli
 - **R**émi Janin
+
