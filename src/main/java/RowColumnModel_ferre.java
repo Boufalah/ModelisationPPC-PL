@@ -15,7 +15,7 @@ public class RowColumnModel_ferre {
             System.out.println("" + rows[i] + " " + cols[i]);
         }
 
-
+        //constraints
         for (int i = 0; i < n; i++) {
             for(int j=0; j < n; j++) {
                 if (j != i) {
@@ -24,21 +24,10 @@ public class RowColumnModel_ferre {
                 }
             }
         }
-
-        //constraints
         model.post(
                 model.allDifferent(rows),
                 model.allDifferent(cols)
         );
-
-
-        /*for (int i = 0; i < n - 1; i++) {
-            for (int j = i + 1; j < n; j++) {
-                model.arithm(vars[i], "!=", vars[j]).post();
-                model.arithm(vars[i], "!=", vars[j], "-", j - i).post();
-                model.arithm(vars[i], "!=", vars[j], "+", j - i).post();
-            }
-        }*/
 
         Solution solution = model.getSolver().findSolution();
         if (solution != null) {
