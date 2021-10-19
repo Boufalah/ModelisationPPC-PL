@@ -16,11 +16,10 @@ public class RowColumnModel {
             l[i] = model.intVar("L_" + i, 1, n);
         }
 
-        /* Davide Ferre's solution */
-
-        //constraints (l stands for 'line' and c stands for 'col')
+        /* Davide Ferre's solution - START */
 
         /*
+        //constraints (l stands for 'line' and c stands for 'col')
         for (int i = 0; i < n; i++) {
             for(int j=0; j < n; j++) {
                 if (j != i) {
@@ -39,8 +38,9 @@ public class RowColumnModel {
             System.out.println(solution.toString());
         }
          */
+        /* Davide Ferre's solution - END */
 
-        /* Alternative solution */
+        /* Alternative solution - START */
 
         model.allDifferent(c).post();
         model.allDifferent(l).post();
@@ -64,5 +64,7 @@ public class RowColumnModel {
             System.out.println();
             // System.out.println(solution.toString());
         }
+
+        /* Alternative solution - END */
     }
 }
