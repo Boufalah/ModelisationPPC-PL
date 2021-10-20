@@ -4,8 +4,9 @@ import org.chocosolver.solver.variables.IntVar;
 
 import java.util.Collections;
 
-public class FirstModel {
-    public static void main(String[] args) {
+public class PrimalModel implements TryYourStuff {
+    @Override
+    public void general() {
         int n = 8;
         Model model = new Model(n + "-queens problem");
         IntVar[] vars = new IntVar[n];
@@ -26,6 +27,11 @@ public class FirstModel {
         if (solution != null) {
             System.out.println(solution.toString());
         }
+    }
+
+    public static void main(String[] args) {
+        PrimalModel m = new PrimalModel();
+        m.general();
     }
 
 }
