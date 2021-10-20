@@ -14,15 +14,17 @@ public final class Utilities {
             }
         }
 
+        System.out.println("*** SOLUTION ***");
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if(solved_matrix[i][j] == 1) {
-                    System.out.print("# ");
+                    System.out.print("xx ");
                 } else {
-                    System.out.print("- ");
+                    System.out.print("-- ");
                 }
             }
             System.out.println();
         }
+        System.out.println();
     }
 }

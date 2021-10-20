@@ -12,35 +12,45 @@ public class BooleanModel implements TryYourStuff {
         int n = 8;
         Model model = new Model(n + "-queen problem boolean");
         // Create a matrix of nxn bool variables
-        IntVar[][] matrix = model.intVarMatrix("c", n, n, 0, 1);
+        IntVar[][] rows = model.intVarMatrix("c", n, n, 0, 1);
 
         //constraints
         IntVar[] flatArray = new IntVar[n*n];
         for (int index = 0; index < n*n; index++) {
             int i = index / n;
             int j = index % n;
-            flatArray[index] = matrix[i][j];
+            flatArray[index] = rows[i][j];
         }
-        model.sum(flatArray,"=",n).post(); // total number of queens constraint
+        model.sum(flatArray,"=",n).post(); // total number of queens
 
-        for(int i = 0; i < n; i++) {
-            model.sum(matrix[i], "=", 1).post(); // 1 queen in each row constraint
-        }
+        for(int i = 0; i < n; i++)
+            model.sum(rows[i], "=", 1).post(); // 1 queen in each row
 
         IntVar[][] cols = new IntVar[n][n];
-        for(int i = 0; i < n; i++) {
-            for(int j = 0; j < n; j++) {
-                cols[i][j] = matrix[j][i];
-            }
-        }
-        for(int i = 0; i < n; i++) {
-            model.sum(cols[i], "=", 1).post(); // 1 queen in each column constraint
-        }
+        for(int j = 0; j < n; j++)
+            for(int i = 0; i < n; i++)
+                cols[j][n-1-i] = rows[i][j]; // rotates the matrix of 90° clockwise
+
+        for(int i = 0; i < n; i++)
+            model.sum(cols[i], "=", 1).post(); // 1 queen in each column
+
+        for(int i = 0; i < n-1; i++)
+            for(int j = 0; j < n-1; j++)
+                for (int k = 1; i+k<n && j+k<n; k++)
+                    model.arithm(rows[i][j], "+", rows[i+k][j+k], "<=", 1).post(); // max 1 queen in every major diagonal
+
+        for(int i = 0; i < n-1; i++)
+            for(int j = 0; j < n-1; j++)
+                for (int k = 1; i+k<n && j+k<n; k++)
+                    model.arithm(cols[i][j], "+", cols[i+k][j+k], "<=", 1).post(); // max 1 queen in every minor diagonal
+
 
         Solution solution = model.getSolver().findSolution();
         if (solution != null) {
             System.out.println(solution.toString());
-            Utilities.printMatrix(matrix, n);
+            Utilities.printMatrix(rows, n);
+        } else {
+            System.out.println("No solution found");
         }
     }
 
