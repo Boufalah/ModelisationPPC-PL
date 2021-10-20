@@ -2,6 +2,7 @@ import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import java.lang.*;
 import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.IntVar;
 
 import static org.chocosolver.util.tools.ArrayUtils.getColumn;
@@ -9,19 +10,20 @@ import static org.chocosolver.util.tools.ArrayUtils.getColumn;
 public class BooleanModel implements TryYourStuff {
     @Override
     public void ferre() {
-        int n = 8;
+        int n = 6;
         Model model = new Model(n + "-queen problem boolean");
-        // Create a matrix of nxn bool variables
+        // Create a matrix of nxn int variables {0,1}
         IntVar[][] rows = model.intVarMatrix("c", n, n, 0, 1);
 
-        //constraints
+        /** Constraints **/
         IntVar[] flatArray = new IntVar[n*n];
         for (int index = 0; index < n*n; index++) {
             int i = index / n;
             int j = index % n;
             flatArray[index] = rows[i][j];
         }
-        model.sum(flatArray,"=",n).post(); // total number of queens
+        model.sum(flatArray,"=",n).post(); // the total number of queens is n
+//??? Is the constraint above somehow useful? The next two are enough to find solutions and the performances seem to be comparable
 
         for(int i = 0; i < n; i++)
             model.sum(rows[i], "=", 1).post(); // 1 queen in each row
@@ -44,13 +46,12 @@ public class BooleanModel implements TryYourStuff {
                 for (int k = 1; i+k<n && j+k<n; k++)
                     model.arithm(cols[i][j], "+", cols[i+k][j+k], "<=", 1).post(); // max 1 queen in every minor diagonal
 
-
-        Solution solution = model.getSolver().findSolution();
-        if (solution != null) {
-            System.out.println(solution.toString());
-            Utilities.printMatrix(rows, n);
-        } else {
-            System.out.println("No solution found");
+        /** Solving and enumerating **/
+        Solver solver = model.getSolver();
+        solver.showShortStatisticsOnShutdown();
+        for (int i = 1; solver.solve(); i++) {
+            System.out.println("****** Solution n° " + i + " ******");
+            printSolution(rows, n);
         }
     }
 
@@ -102,5 +103,14 @@ public class BooleanModel implements TryYourStuff {
         BooleanModel m = new BooleanModel();
         //m.ferre();
         m.pizzoli();
+    }
+
+    public static void printSolution(IntVar[][] rows, int n) {
+        int[][] solved_matrix = new int[n][n];
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                solved_matrix[i][j] = rows[i][j].getValue();
+
+        Utilities.printMatrix(solved_matrix, n);
     }
 }

@@ -47,39 +47,54 @@ public class RowColumnModel implements TryYourStuff {
 
     @Override
     public void ferre(){
-        int n = 4;
-        Model model = new Model(n + "-queens problem, row/column");
-        IntVar[] cols = new IntVar[n];
-        IntVar[] rows = new IntVar[n];
-
-        for (int i = 0; i < n; i++) {
-            rows[i] = model.intVar("R_" + i, 1, n);
-            cols[i] = model.intVar("C_" + i, 1, n);
-            System.out.println("" + rows[i] + " " + cols[i]);
-        }
+        int n = 6;
+        Model model = new Model(n + "-queens problem row/column");
+        IntVar[] rows = model.intVarArray("R", n, 0, n-1);
+        IntVar[] cols = model.intVarArray("C", n, 0, n-1);
 
         //constraints
         for (int i = 0; i < n; i++) {
             for(int j=0; j < n; j++) {
-                if (j != i) {
-                    rows[j].sub(rows[i]).ne(cols[j].sub(cols[i])).post();
-                    rows[i].sub(rows[j]).ne(cols[j].sub(cols[i])).post();
+                if (i != j) {
+                    rows[i].sub(cols[i]).ne(rows[j].sub(cols[j])).post(); // no two queens on the same major diagonal
+                    rows[i].add(cols[i]).ne(rows[j].add(cols[j])).post(); // no two queens on the same minor diagonal
                 }
             }
         }
         model.post(
-                model.allDifferent(rows),
-                model.allDifferent(cols)
+                model.allDifferent(rows), // no two queens on the same row
+                model.allDifferent(cols) // no two queens on the same column
         );
 
+        /** Solving and enumerating **/
         Solver solver = model.getSolver();
-        while (solver.solve()) {
-            System.out.println("A solution was found");
+        solver.showShortStatisticsOnShutdown();
+        for (int i = 1; solver.solve(); i++) {
+            System.out.println("****** Solution n° " + i + " ******");
+            printSolution(rows, cols, n);
         }
+
+        /** Analysis
+            Unfortunately, this model is not efficient because it introduces several unwanted symmetries in the solutions.
+            Every solution is represented as a set of n pairs (row,col); thus, for every legitimate solution, there are
+            n! permutations of these pairs, which all basically represents the same, but are considered different by the solver.
+            The total number of solution returned by the solver is then n!*k, where k is the number of legitimate solutions.
+            Ex. With n=6 there are k=4 legitimate solutions, with this model the solver returns !6*4 = 2880 solutions
+            This is definitely not a good modeling choice for this problem.
+        **/
     }
 
     public static void main(String[] args) {
         RowColumnModel m = new RowColumnModel();
         m.general();
+//        m.ferre();
+    }
+
+    public static void printSolution(IntVar[] rows, IntVar[] cols, int n) {
+        int[][] solved_matrix = new int[n][n];
+        for (int i = 0; i < n; i++)
+            solved_matrix[rows[i].getValue()][cols[i].getValue()] = 1;
+
+        Utilities.printMatrix(solved_matrix, n);
     }
 }
