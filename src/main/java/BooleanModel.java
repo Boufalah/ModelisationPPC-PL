@@ -1,10 +1,10 @@
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
+import java.lang.*;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 
-import java.util.Arrays;
-import java.util.stream.IntStream;
+import static org.chocosolver.util.tools.ArrayUtils.getColumn;
 
 public class BooleanModel implements TryYourStuff {
     @Override
@@ -54,8 +54,53 @@ public class BooleanModel implements TryYourStuff {
         }
     }
 
+    @Override
+    public void pizzoli() {
+        int n = 8;
+        Model model = new Model(n + "-queens problem");
+        BoolVar[][] vars = new BoolVar[n][n];
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                vars[i][j] = model.boolVar("Q_" + i);
+            }
+        }
+
+        for (int i = 0; i < n; i++) {
+            model.addClausesAtMostOne(vars[i]); // At most one true value for each row
+            model.addClausesAtMostOne(getColumn(vars, i)); // At most one true value for each column
+
+            model.addClausesBoolOrArrayEqualTrue(vars[i]); // Remove "all false values" solution
+            model.addClausesBoolOrArrayEqualTrue(getColumn(vars, i)); // Remove "all false values" solution
+        }
+
+        for(int i = 0; i < n-1; i++) {
+            for(int j = 0; j < n-1; j++) {
+                for(int y = -Math.min(i, j); y < n - Math.max(i,j); y++) {
+                    if(y != 0) {
+                        model.arithm(vars[i][j].intVar(), "+", vars[i + y][j + y].intVar(), "<=", 1).post();
+                        model.arithm(vars[i][n-j-1].intVar(), "+", vars[i + y][n-j-1 - y].intVar(), "<=", 1).post();
+                    }
+                }
+            }
+        }
+
+        Solution solution = model.getSolver().findSolution();
+        if (solution != null) {
+            for(int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    System.out.print(solution.getIntVal(vars[i][j]) + "  ");
+                }
+                System.out.println();
+            }
+            // System.out.println(solution.toString());
+        }
+
+    }
+
     public static void main(String[] args) {
         BooleanModel m = new BooleanModel();
-        m.ferre();
+        //m.ferre();
+        m.pizzoli();
     }
 }
