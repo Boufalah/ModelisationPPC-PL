@@ -50,12 +50,21 @@ public class BooleanModel implements TryYourStuff {
         solver.showShortStatisticsOnShutdown();
         for (int i = 1; solver.solve(); i++) {
             System.out.println("****** Solution n° " + i + " ******");
-            Utilities.printMatrix(rows, n);
+            printSolution(rows, n);
         }
     }
 
     public static void main(String[] args) {
         BooleanModel m = new BooleanModel();
         m.ferre();
+    }
+
+    public static void printSolution(IntVar[][] rows, int n) {
+        int[][] solved_matrix = new int[n][n];
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                solved_matrix[i][j] = rows[i][j].getValue();
+
+        Utilities.printMatrix(solved_matrix, n);
     }
 }
