@@ -10,12 +10,12 @@ import static org.chocosolver.util.tools.ArrayUtils.getColumn;
 public class BooleanModel implements TryYourStuff {
     @Override
     public void ferre() {
-        int n = 6;
+        int n = 8;
         Model model = new Model(n + "-queen problem boolean");
         // Create a matrix of nxn int variables {0,1}
         IntVar[][] rows = model.intVarMatrix("c", n, n, 0, 1);
 
-        /** Constraints **/
+        /* Constraints */
         IntVar[] flatArray = new IntVar[n*n];
         for (int index = 0; index < n*n; index++) {
             int i = index / n;
@@ -25,28 +25,28 @@ public class BooleanModel implements TryYourStuff {
         model.sum(flatArray,"=",n).post(); // the total number of queens is n
 //??? Is the constraint above somehow useful? The next two are enough to find solutions and the performances seem to be comparable
 
-        for(int i = 0; i < n; i++)
-            model.sum(rows[i], "=", 1).post(); // 1 queen in each row
-
         IntVar[][] cols = new IntVar[n][n];
-        for(int j = 0; j < n; j++)
-            for(int i = 0; i < n; i++)
-                cols[j][n-1-i] = rows[i][j]; // rotates the matrix of 90° clockwise
+        for(int j = 0; j < n; j++) {
+            for (int i = 0; i < n; i++) {
+                cols[j][n - 1 - i] = rows[i][j]; // rotates the rows matrix of 90° clockwise
+            }
+        }
 
-        for(int i = 0; i < n; i++)
+        for(int i = 0; i < n; i++) {
+            model.sum(rows[i], "=", 1).post(); // 1 queen in each row
             model.sum(cols[i], "=", 1).post(); // 1 queen in each column
+        }
 
-        for(int i = 0; i < n-1; i++)
-            for(int j = 0; j < n-1; j++)
-                for (int k = 1; i+k<n && j+k<n; k++)
-                    model.arithm(rows[i][j], "+", rows[i+k][j+k], "<=", 1).post(); // max 1 queen in every major diagonal
+        for(int i = 0; i < n-1; i++) {
+            for (int j = 0; j < n - 1; j++) {
+                for (int k = 1; i + k < n && j + k < n; k++) {
+                    model.arithm(rows[i][j], "+", rows[i + k][j + k], "<=", 1).post(); // max 1 queen in every major diagonal
+                    model.arithm(cols[i][j], "+", cols[i + k][j + k], "<=", 1).post(); // max 1 queen in every minor diagonal
+                }
+            }
+        }
 
-        for(int i = 0; i < n-1; i++)
-            for(int j = 0; j < n-1; j++)
-                for (int k = 1; i+k<n && j+k<n; k++)
-                    model.arithm(cols[i][j], "+", cols[i+k][j+k], "<=", 1).post(); // max 1 queen in every minor diagonal
-
-        /** Solving and enumerating **/
+        /* Solving and enumerating */
         Solver solver = model.getSolver();
         solver.showShortStatisticsOnShutdown();
         for (int i = 1; solver.solve(); i++) {
@@ -101,15 +101,17 @@ public class BooleanModel implements TryYourStuff {
 
     public static void main(String[] args) {
         BooleanModel m = new BooleanModel();
-        //m.ferre();
-        m.pizzoli();
+        m.ferre();
+//        m.pizzoli();
     }
 
     public static void printSolution(IntVar[][] rows, int n) {
         int[][] solved_matrix = new int[n][n];
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < n; j++)
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
                 solved_matrix[i][j] = rows[i][j].getValue();
+            }
+        }
 
         Utilities.printMatrix(solved_matrix, n);
     }

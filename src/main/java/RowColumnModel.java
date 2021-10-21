@@ -52,7 +52,7 @@ public class RowColumnModel implements TryYourStuff {
         IntVar[] rows = model.intVarArray("R", n, 0, n-1);
         IntVar[] cols = model.intVarArray("C", n, 0, n-1);
 
-        //constraints
+        /* Constraints */
         for (int i = 0; i < n; i++) {
             for(int j=0; j < n; j++) {
                 if (i != j) {
@@ -66,7 +66,7 @@ public class RowColumnModel implements TryYourStuff {
                 model.allDifferent(cols) // no two queens on the same column
         );
 
-        /** Solving and enumerating **/
+        /* Solving and enumerating */
         Solver solver = model.getSolver();
         solver.showShortStatisticsOnShutdown();
         for (int i = 1; solver.solve(); i++) {
@@ -74,26 +74,27 @@ public class RowColumnModel implements TryYourStuff {
             printSolution(rows, cols, n);
         }
 
-        /** Analysis
+        /* Observations
             Unfortunately, this model is not efficient because it introduces several unwanted symmetries in the solutions.
             Every solution is represented as a set of n pairs (row,col); thus, for every legitimate solution, there are
             n! permutations of these pairs, which all basically represents the same, but are considered different by the solver.
             The total number of solution returned by the solver is then n!*k, where k is the number of legitimate solutions.
-            Ex. With n=6 there are k=4 legitimate solutions, with this model the solver returns !6*4 = 2880 solutions
+            Ex. With n=6 there are k=4 legitimate solutions, with this model the solver returns !6*4 = 2880 solutions.
             This is definitely not a good modeling choice for this problem.
-        **/
+        */
     }
 
     public static void main(String[] args) {
         RowColumnModel m = new RowColumnModel();
-        m.general();
-//        m.ferre();
+//        m.general();
+        m.ferre();
     }
 
     public static void printSolution(IntVar[] rows, IntVar[] cols, int n) {
         int[][] solved_matrix = new int[n][n];
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < n; i++) {
             solved_matrix[rows[i].getValue()][cols[i].getValue()] = 1;
+        }
 
         Utilities.printMatrix(solved_matrix, n);
     }

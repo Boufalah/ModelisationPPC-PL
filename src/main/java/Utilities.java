@@ -2,8 +2,8 @@ import org.chocosolver.solver.variables.IntVar;
 
 public final class Utilities {
     /**
-     * Prints a IntVar matrix in a simple graphical form
-     * @param matrix if a cell=1 then it prints #
+     * Prints a int[n][n] matrix in a simple graphical form
+     * @param matrix if a cell=1 then it prints 'X', otherwise '-'
      * @param n dimension of the square matrix
      */
     public static void printMatrix(int matrix[][], int n) {
