@@ -9,8 +9,7 @@ import static org.chocosolver.util.tools.ArrayUtils.getColumn;
 
 public class BooleanModel implements TryYourStuff {
     @Override
-    public void ferre() {
-        int n = 8;
+    public long ferre(int n, boolean print) {
         Model model = new Model(n + "-queen problem boolean");
         // Create a matrix of nxn int variables {0,1}
         IntVar[][] rows = model.intVarMatrix("c", n, n, 0, 1);
@@ -48,11 +47,17 @@ public class BooleanModel implements TryYourStuff {
 
         /* Solving and enumerating */
         Solver solver = model.getSolver();
-        solver.showShortStatisticsOnShutdown();
-        for (int i = 1; solver.solve(); i++) {
-            System.out.println("****** Solution n° " + i + " ******");
-            printSolution(rows, n);
+        if (print) {
+            for (int i = 1; solver.solve(); i++) {
+                System.out.println("****** Solution n° " + i + " ******");
+                printSolution(rows, n);
+            }
+        } else {
+            while(solver.solve()) {}
         }
+        long estimatedTime = solver.getTimeCountInNanoSeconds();
+
+        return estimatedTime;
     }
 
     @Override
@@ -101,7 +106,7 @@ public class BooleanModel implements TryYourStuff {
 
     public static void main(String[] args) {
         BooleanModel m = new BooleanModel();
-        m.ferre();
+//        m.ferre();
 //        m.pizzoli();
     }
 

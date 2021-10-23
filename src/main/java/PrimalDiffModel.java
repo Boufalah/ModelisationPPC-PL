@@ -8,8 +8,7 @@ import org.chocosolver.solver.variables.IntVar;
 
 public class PrimalDiffModel implements TryYourStuff {
 	@Override
-	public void ferre() {
-		int n = 8;
+	public long ferre(int n, boolean print) {
 		Model model = new Model(n + "-queens problem primal allDifferent");
 		IntVar[] rQueens = model.intVarArray("Q", n, 0, n-1, false);
 		IntVar[] diag1 = IntStream.range(0, n).mapToObj(i -> rQueens[i].sub(i).intVar()).toArray(IntVar[]::new);
@@ -23,12 +22,17 @@ public class PrimalDiffModel implements TryYourStuff {
 		);
 		/* Solving and enumerating */
 		Solver solver = model.getSolver();
-		solver.showShortStatisticsOnShutdown();
-		for (int i = 1; solver.solve(); i++) {
-			System.out.println("****** Solution n° " + i + " ******");
-			printSolution(rQueens, n);
+		if (print) {
+			for (int i = 1; solver.solve(); i++) {
+				System.out.println("****** Solution n° " + i + " ******");
+				printSolution(rQueens, n);
+			}
+		} else {
+			while(solver.solve()) {}
 		}
+		long estimatedTime = solver.getTimeCountInNanoSeconds();
 
+		return estimatedTime;
 		/* Observations
 			The modeling is "cleaner" than the PrimalModel in my eyes, but performances seem to be worse by an avg factor of 2/3.
 		*/
@@ -58,7 +62,7 @@ public class PrimalDiffModel implements TryYourStuff {
 	public static void main(String[] args) {
 		PrimalDiffModel m = new PrimalDiffModel();
 //		m.general();
-		m.ferre();
+//		m.ferre();
 	}
 
 	public static void printSolution(IntVar[] rQueens, int n) {

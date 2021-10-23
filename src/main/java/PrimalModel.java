@@ -7,9 +7,8 @@ import java.util.Collections;
 
 public class PrimalModel implements TryYourStuff {
     @Override
-    public void ferre() {
-        int n = 8;
-        Model model = new Model(n + "-queens problem");
+    public long ferre(int n, boolean print) {
+        Model model = new Model(n + "-queens problem primal");
         IntVar[] rQueens = model.intVarArray("RQ", n, 0, n-1, false);
 
         /* Constraints */
@@ -23,11 +22,17 @@ public class PrimalModel implements TryYourStuff {
 
         /* Solving and enumerating */
         Solver solver = model.getSolver();
-        solver.showShortStatisticsOnShutdown();
-        for (int i = 1; solver.solve(); i++) {
-            System.out.println("****** Solution n° " + i + " ******");
-            printSolution(rQueens, n);
+        if (print) {
+            for (int i = 1; solver.solve(); i++) {
+                System.out.println("****** Solution n° " + i + " ******");
+                printSolution(rQueens, n);
+            }
+        } else {
+            while(solver.solve()) {}
         }
+        long estimatedTime = solver.getTimeCountInNanoSeconds();
+
+        return estimatedTime;
     }
 
     @Override
@@ -57,7 +62,7 @@ public class PrimalModel implements TryYourStuff {
     public static void main(String[] args) {
         PrimalModel m = new PrimalModel();
 //        m.general();
-        m.ferre();
+//        m.ferre();
     }
 
     public static void printSolution(IntVar[] rQueens, int n) {

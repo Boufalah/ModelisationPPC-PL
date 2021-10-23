@@ -46,8 +46,7 @@ public class RowColumnModel implements TryYourStuff {
     }
 
     @Override
-    public void ferre(){
-        int n = 6;
+    public long ferre(int n, boolean print){
         Model model = new Model(n + "-queens problem row/column");
         IntVar[] rows = model.intVarArray("R", n, 0, n-1);
         IntVar[] cols = model.intVarArray("C", n, 0, n-1);
@@ -68,12 +67,18 @@ public class RowColumnModel implements TryYourStuff {
 
         /* Solving and enumerating */
         Solver solver = model.getSolver();
-        solver.showShortStatisticsOnShutdown();
-        for (int i = 1; solver.solve(); i++) {
-            System.out.println("****** Solution n° " + i + " ******");
-            printSolution(rows, cols, n);
-        }
+        if (print) {
+            for (int i = 1; solver.solve(); i++) {
+                System.out.println("****** Solution n° " + i + " ******");
+                printSolution(rows, cols, n);
 
+            }
+        } else {
+            while(solver.solve()) {}
+        }
+        long estimatedTime = solver.getTimeCountInNanoSeconds();
+
+        return estimatedTime;
         /* Observations
             Unfortunately, this model is not efficient because it introduces several unwanted symmetries in the solutions.
             Every solution is represented as a set of n pairs (row,col); thus, for every legitimate solution, there are
@@ -87,7 +92,7 @@ public class RowColumnModel implements TryYourStuff {
     public static void main(String[] args) {
         RowColumnModel m = new RowColumnModel();
 //        m.general();
-        m.ferre();
+//        m.ferre();
     }
 
     public static void printSolution(IntVar[] rows, IntVar[] cols, int n) {

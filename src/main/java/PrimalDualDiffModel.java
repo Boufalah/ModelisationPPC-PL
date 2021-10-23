@@ -8,8 +8,7 @@ import java.util.stream.IntStream;
 
 public class PrimalDualDiffModel implements TryYourStuff {
     @Override
-    public void ferre() {
-        int n = 8;
+    public long ferre(int n, boolean print) {
         Model model = new Model(n + "-queens problem primal/dual allDifferent");
         // row-based model
         IntVar[] rQueens = model.intVarArray("RQ", n, 0, n-1, false);
@@ -37,12 +36,17 @@ public class PrimalDualDiffModel implements TryYourStuff {
 
         /* Solving and enumerating */
         Solver solver = model.getSolver();
-        solver.showShortStatisticsOnShutdown();
-        for (int i = 1; solver.solve(); i++) {
-            System.out.println("****** Solution n° " + i + " ******");
-            printSolution(rQueens, cQueens, n);
+        if (print) {
+            for (int i = 1; solver.solve(); i++) {
+                System.out.println("****** Solution n° " + i + " ******");
+                printSolution(rQueens, cQueens, n);
+            }
+        } else {
+            while(solver.solve()) {}
         }
+        long estimatedTime = solver.getTimeCountInNanoSeconds();
 
+        return estimatedTime;
         /* Observations
             The model works and the solver returns the expected number of solutions.
             The performances, however, seem to be worse than the simple primal model by an avg factor of 1/2.
@@ -51,7 +55,7 @@ public class PrimalDualDiffModel implements TryYourStuff {
 
     public static void main(String[] args) {
         PrimalDualDiffModel m = new PrimalDualDiffModel();
-        m.ferre();
+//        m.ferre();
     }
 
     public static void printSolution(IntVar[] rQueens, IntVar[] cQueens, int n) {

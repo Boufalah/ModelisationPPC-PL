@@ -6,8 +6,7 @@ import java.util.stream.IntStream;
 
 public class PrimalDualModel implements TryYourStuff {
     @Override
-    public void ferre() {
-        int n = 8;
+    public long ferre(int n, boolean print) {
         Model model = new Model(n + "-queens problem primal/dual");
         // row-based model
         IntVar[] rQueens = model.intVarArray("RQ", n, 0, n-1, false);
@@ -34,12 +33,17 @@ public class PrimalDualModel implements TryYourStuff {
 
         /* Solving and enumerating */
         Solver solver = model.getSolver();
-        solver.showShortStatisticsOnShutdown();
-        for (int i = 1; solver.solve(); i++) {
-            System.out.println("****** Solution n° " + i + " ******");
-            printSolution(rQueens, cQueens, n);
+        if (print) {
+            for (int i = 1; solver.solve(); i++) {
+                System.out.println("****** Solution n° " + i + " ******");
+                printSolution(rQueens, cQueens, n);
+            }
+        } else {
+            while(solver.solve()) {}
         }
+        long estimatedTime = solver.getTimeCountInNanoSeconds();
 
+        return estimatedTime;
         /* Observations
 
         */
@@ -47,7 +51,7 @@ public class PrimalDualModel implements TryYourStuff {
 
     public static void main(String[] args) {
         PrimalDualModel m = new PrimalDualModel();
-        m.ferre();
+//        m.ferre();
     }
 
     public static void printSolution(IntVar[] rQueens, IntVar[] cQueens, int n) {
