@@ -1,3 +1,5 @@
+package nqueen;
+
 import java.util.stream.IntStream;
 
 import org.chocosolver.solver.Model;
@@ -34,7 +36,7 @@ public class PrimalDiffModel implements TryYourStuff {
 
 		return estimatedTime;
 		/* Observations
-			The modeling is "cleaner" than the PrimalModel in my eyes, but performances seem to be worse by an avg factor of 2/3.
+			The modeling is "cleaner" than the nqueen.PrimalModel in my eyes, but performances seem to be worse by an avg factor of 2/3.
 		*/
 	}
 

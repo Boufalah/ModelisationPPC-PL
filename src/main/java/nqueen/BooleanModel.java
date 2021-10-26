@@ -1,3 +1,5 @@
+package nqueen;
+
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import java.lang.*;

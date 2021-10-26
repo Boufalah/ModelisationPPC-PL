@@ -1,9 +1,9 @@
+package nqueen;
+
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.IntVar;
-
-import java.util.Collections;
 
 public class PrimalModel implements TryYourStuff {
     @Override

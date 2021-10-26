@@ -12,7 +12,7 @@
 
 Hi guys, I did a little bit of code refactoring to avoid Git merge/push conflits, so that everyone can run its tests without unintentionally affecting the others. I've created a single class per model and they all implement the following interface:
 ```java
-public interface TryYourStuff {
+public interface nqueen.TryYourStuff {
     default void ferre() { }
     default void pizzoli() { }
     default void remi() { }
@@ -25,7 +25,7 @@ public interface TryYourStuff {
 If you want to try something for a specific model, simply override the method that has your name and put your code there, then call your function from the main(). An example is given below:
 
 ```java
-public class RowColumnModel implements TryYourStuff {
+public class nqueen.RowColumnModel implements nqueen.TryYourStuff {
 
     @Override
     public void ferre(){
@@ -38,7 +38,7 @@ public class RowColumnModel implements TryYourStuff {
     }
 
     public static void main(String[] args) {
-        RowColumnModel m = new RowColumnModel();
+        nqueen.RowColumnModel m = new nqueen.RowColumnModel();
         m.ferre();
         m.meryem();
     }
