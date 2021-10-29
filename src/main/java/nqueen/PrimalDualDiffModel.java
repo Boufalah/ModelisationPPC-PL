@@ -3,21 +3,27 @@ package nqueen;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.expression.discrete.arithmetic.ArExpression;
 import org.chocosolver.solver.variables.IntVar;
 
 import java.util.stream.IntStream;
 
-public class PrimalDualDiffModel implements TryYourStuff {
+public class PrimalDualDiffModel extends BaseQueenModel implements Callable, TryYourStuff {
+    private IntVar[] rQueens;
+    private IntVar[] cQueens;
+
+    public PrimalDualDiffModel() {}
+    public PrimalDualDiffModel(int n, boolean enumerate, boolean print) {
+        super(n + "-queen problem primal/dual allDifferent", n, enumerate, print);
+    }
+
     @Override
-    public long ferre(int n, boolean print) {
-        Model model = new Model(n + "-queens problem primal/dual allDifferent");
+    public long ferre() {
         // row-based model
-        IntVar[] rQueens = model.intVarArray("RQ", n, 0, n-1, false);
+        rQueens = model.intVarArray("RQ", n, 0, n-1, false);
         IntVar[] rDiag1 = IntStream.range(0, n).mapToObj(i -> rQueens[i].sub(i).intVar()).toArray(IntVar[]::new);
         IntVar[] rDiag2 = IntStream.range(0, n).mapToObj(i -> rQueens[i].add(i).intVar()).toArray(IntVar[]::new);
         // column-based model
-        IntVar[] cQueens = model.intVarArray("CQ", n, 0, n-1, false);
+        cQueens = model.intVarArray("CQ", n, 0, n-1, false);
         IntVar[] cDiag1 = IntStream.range(0, n).mapToObj(i -> cQueens[i].sub(i).intVar()).toArray(IntVar[]::new);
         IntVar[] cDiag2 = IntStream.range(0, n).mapToObj(i -> cQueens[i].add(i).intVar()).toArray(IntVar[]::new);
 
@@ -37,16 +43,10 @@ public class PrimalDualDiffModel implements TryYourStuff {
         }
 
         /* Solving and enumerating */
-        Solver solver = model.getSolver();
-        if (print) {
-            for (int i = 1; solver.solve(); i++) {
-                System.out.println("****** Solution n° " + i + " ******");
-                printSolution(rQueens, cQueens, n);
-            }
-        } else {
-            while(solver.solve()) {}
+        long estimatedTime = 0;
+        if (enumerate) {
+            estimatedTime = enumerate(this);
         }
-        long estimatedTime = solver.getTimeCountInNanoSeconds();
 
         return estimatedTime;
         /* Observations
@@ -102,12 +102,12 @@ public class PrimalDualDiffModel implements TryYourStuff {
     }
 
     public static void main(String[] args) {
-        PrimalDualDiffModel m = new PrimalDualDiffModel();
-//        m.ferre();
-        m.pizzoli(args);
+        PrimalDualDiffModel m = new PrimalDualDiffModel(6, true, true);
+        m.ferre();
+//        m.pizzoli(args);
     }
 
-    public static void printSolution(IntVar[] rQueens, IntVar[] cQueens, int n) {
+    public void printSolutions() {
         int[][] solved_matrix = new int[n][n];
         // check solutions
         for (int i = 0; i < n; i++) {

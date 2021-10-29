@@ -1,17 +1,22 @@
 package nqueen;
 
-import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.IntVar;
 
-public class PrimalDualModel implements TryYourStuff {
+public class PrimalDualModel extends BaseQueenModel implements Callable, TryYourStuff {
+    private IntVar[] rQueens;
+    private IntVar[] cQueens;
+
+    public PrimalDualModel() {}
+    public PrimalDualModel(int n, boolean enumerate, boolean print) {
+        super(n + "-queen problem primal/dual", n, enumerate, print);
+    }
+
     @Override
-    public long ferre(int n, boolean print) {
-        Model model = new Model(n + "-queens problem primal/dual");
+    public long ferre() {
         // row-based model
-        IntVar[] rQueens = model.intVarArray("RQ", n, 0, n-1, false);
+        rQueens = model.intVarArray("RQ", n, 0, n-1, false);
         // column-based model
-        IntVar[] cQueens = model.intVarArray("CQ", n, 0, n-1, false);
+        cQueens = model.intVarArray("CQ", n, 0, n-1, false);
 
         /* Constraints */
         for (int i = 0; i < n - 1; i++) {
@@ -32,17 +37,10 @@ public class PrimalDualModel implements TryYourStuff {
         }
 
         /* Solving and enumerating */
-        Solver solver = model.getSolver();
-        if (print) {
-            for (int i = 1; solver.solve(); i++) {
-                System.out.println("****** Solution n° " + i + " ******");
-                printSolution(rQueens, cQueens, n);
-            }
-        } else {
-            while(solver.solve()) {}
+        long estimatedTime = 0;
+        if (enumerate) {
+            estimatedTime = enumerate(this);
         }
-        long estimatedTime = solver.getTimeCountInNanoSeconds();
-
         return estimatedTime;
         /* Observations
 
@@ -50,11 +48,11 @@ public class PrimalDualModel implements TryYourStuff {
     }
 
     public static void main(String[] args) {
-        PrimalDualModel m = new PrimalDualModel();
-//        m.ferre();
+        PrimalDualModel m = new PrimalDualModel(6, true, true);
+        m.ferre();
     }
 
-    public static void printSolution(IntVar[] rQueens, IntVar[] cQueens, int n) {
+    public void printSolutions() {
         int[][] solved_matrix = new int[n][n];
         // check solutions
         for (int i = 0; i < n; i++) {

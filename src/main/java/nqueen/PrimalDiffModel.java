@@ -8,11 +8,17 @@ import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 
-public class PrimalDiffModel implements TryYourStuff {
+public class PrimalDiffModel extends BaseQueenModel implements Callable,TryYourStuff {
+	private IntVar[] rQueens;
+
+	public PrimalDiffModel() {}
+	public PrimalDiffModel(int n, boolean enumerate, boolean print) {
+		super(n + "-queen problem primal allDifferent", n, enumerate, print);
+	}
+
 	@Override
-	public long ferre(int n, boolean print) {
-		Model model = new Model(n + "-queens problem primal allDifferent");
-		IntVar[] rQueens = model.intVarArray("Q", n, 0, n-1, false);
+	public long ferre() {
+		rQueens = model.intVarArray("Q", n, 0, n-1, false);
 		IntVar[] diag1 = IntStream.range(0, n).mapToObj(i -> rQueens[i].sub(i).intVar()).toArray(IntVar[]::new);
 		IntVar[] diag2 = IntStream.range(0, n).mapToObj(i -> rQueens[i].add(i).intVar()).toArray(IntVar[]::new);
 
@@ -22,17 +28,12 @@ public class PrimalDiffModel implements TryYourStuff {
 				model.allDifferent(diag1),
 				model.allDifferent(diag2)
 		);
+
 		/* Solving and enumerating */
-		Solver solver = model.getSolver();
-		if (print) {
-			for (int i = 1; solver.solve(); i++) {
-				System.out.println("****** Solution n° " + i + " ******");
-				printSolution(rQueens, n);
-			}
-		} else {
-			while(solver.solve()) {}
+		long estimatedTime = 0;
+		if (enumerate) {
+			estimatedTime = enumerate(this);
 		}
-		long estimatedTime = solver.getTimeCountInNanoSeconds();
 
 		return estimatedTime;
 		/* Observations
@@ -62,12 +63,12 @@ public class PrimalDiffModel implements TryYourStuff {
 	}
 
 	public static void main(String[] args) {
-		PrimalDiffModel m = new PrimalDiffModel();
+		PrimalDiffModel m = new PrimalDiffModel(6, true, true);
 //		m.general();
-//		m.ferre();
+		m.ferre();
 	}
 
-	public static void printSolution(IntVar[] rQueens, int n) {
+	public void printSolutions() {
 		int[][] solved_matrix = new int[n][n];
 
 		// print graphical solution

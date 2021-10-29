@@ -9,12 +9,18 @@ import org.chocosolver.solver.variables.IntVar;
 
 import static org.chocosolver.util.tools.ArrayUtils.getColumn;
 
-public class BooleanModel implements TryYourStuff {
+public class BooleanModel extends BaseQueenModel implements Callable, TryYourStuff{
+    private IntVar[][] rows;
+
+    public BooleanModel() {}
+    public BooleanModel(int n, boolean enumerate, boolean print) {
+        super(n + "-queen problem boolean", n, enumerate, print);
+    }
+
     @Override
-    public long ferre(int n, boolean print) {
-        Model model = new Model(n + "-queen problem boolean");
+    public long ferre() {
         // Create a matrix of nxn int variables {0,1}
-        IntVar[][] rows = model.intVarMatrix("c", n, n, 0, 1);
+        rows = model.intVarMatrix("c", n, n, 0, 1);
 
         /* Constraints */
         IntVar[] flatArray = new IntVar[n*n];
@@ -48,16 +54,10 @@ public class BooleanModel implements TryYourStuff {
         }
 
         /* Solving and enumerating */
-        Solver solver = model.getSolver();
-        if (print) {
-            for (int i = 1; solver.solve(); i++) {
-                System.out.println("****** Solution n° " + i + " ******");
-                printSolution(rows, n);
-            }
-        } else {
-            while(solver.solve()) {}
+        long estimatedTime = 0;
+        if (enumerate) {
+            estimatedTime = enumerate(this);
         }
-        long estimatedTime = solver.getTimeCountInNanoSeconds();
 
         return estimatedTime;
     }
@@ -121,15 +121,16 @@ public class BooleanModel implements TryYourStuff {
             long estimatedTime = solver.getTimeCountInNanoSeconds();
             System.out.println("Estimated time: " + ((float) estimatedTime / 1000000) + "ms");
         }
+
     }
 
     public static void main(String[] args) {
-        BooleanModel m = new BooleanModel();
-//        m.ferre();
-        m.pizzoli(args);
+        BooleanModel m = new BooleanModel(6, true, true);
+        m.ferre();
+//        m.pizzoli();
     }
 
-    public static void printSolution(IntVar[][] rows, int n) {
+    public void printSolutions() {
         int[][] solved_matrix = new int[n][n];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
