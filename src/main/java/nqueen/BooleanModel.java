@@ -63,8 +63,20 @@ public class BooleanModel implements TryYourStuff {
     }
 
     @Override
-    public void pizzoli() {
+    public void pizzoli(String[] args) {
+        /* java <CLASSNAME> n printSolutionFlag printTimeFlag
+         */
         int n = 8;
+        boolean printSolutionFlag = true;
+        boolean printTimeFlag = true;
+
+        if(args.length > 0)
+            n = Integer.parseInt(args[0]);
+        if(args.length > 1)
+            printSolutionFlag = Boolean.parseBoolean(args[1]);
+        if(args.length > 2)
+            printTimeFlag = Boolean.parseBoolean(args[2]);
+
         Model model = new Model(n + "-queens problem");
         BoolVar[][] vars = new BoolVar[n][n];
 
@@ -93,23 +105,28 @@ public class BooleanModel implements TryYourStuff {
             }
         }
 
-        Solution solution = model.getSolver().findSolution();
-        if (solution != null) {
-            for(int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++) {
-                    System.out.print(solution.getIntVal(vars[i][j]) + "  ");
+        Solver solver = model.getSolver();
+        Solution solution = solver.findSolution();
+        if(printSolutionFlag)
+            if (solution != null) {
+                for(int i = 0; i < n; i++) {
+                    for (int j = 0; j < n; j++) {
+                        System.out.print(solution.getIntVal(vars[i][j]) + "  ");
+                    }
+                    System.out.println();
                 }
-                System.out.println();
+                // System.out.println(solution.toString());
             }
-            // System.out.println(solution.toString());
+        if(printTimeFlag) {
+            long estimatedTime = solver.getTimeCountInNanoSeconds();
+            System.out.println("Estimated time: " + ((float) estimatedTime / 1000000) + "ms");
         }
-
     }
 
     public static void main(String[] args) {
         BooleanModel m = new BooleanModel();
 //        m.ferre();
-//        m.pizzoli();
+        m.pizzoli(args);
     }
 
     public static void printSolution(IntVar[][] rows, int n) {

@@ -1,7 +1,9 @@
 package nqueen;
 
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.expression.discrete.arithmetic.ArExpression;
 import org.chocosolver.solver.variables.IntVar;
 
 import java.util.stream.IntStream;
@@ -53,9 +55,56 @@ public class PrimalDualDiffModel implements TryYourStuff {
         */
     }
 
+    @Override
+    public void pizzoli(String[] args) {
+        /* java <CLASSNAME> n printSolutionFlag printTimeFlag
+         */
+        int n = 8;
+        boolean printSolutionFlag = true;
+        boolean printTimeFlag = true;
+
+        if(args.length > 0)
+            n = Integer.parseInt(args[0]);
+        if(args.length > 1)
+            printSolutionFlag = Boolean.parseBoolean(args[1]);
+        if(args.length > 2)
+            printTimeFlag = Boolean.parseBoolean(args[2]);
+
+        Model model = new Model(n + "-QP_rows");
+        IntVar[] row_vars = model.intVarArray("R_Q", n, 1, n, false);
+        IntVar[] col_vars = model.intVarArray("C_Q", n, 1, n, false);
+
+        IntVar[] row_diag1 = IntStream.range(0, n).mapToObj(i -> row_vars[i].sub(i).intVar()).toArray(IntVar[]::new);
+        IntVar[] row_diag2 = IntStream.range(0, n).mapToObj(i -> row_vars[i].add(i).intVar()).toArray(IntVar[]::new);
+
+        model.allDifferent(row_vars).post();
+        model.allDifferent(row_diag1).post();
+        model.allDifferent(row_diag2).post();
+        // It's useless define the constraints on the Dual problem: Dual problem will get constraints from the iff link
+
+        for(int j = 0; j < n; j++) {
+            for (int i = 0; i < n; i++) {
+                row_vars[j].eq(i).iff(col_vars[i].eq(j)).post();
+            }
+        }
+        
+        Solver solver = model.getSolver();
+        Solution solution = solver.findSolution();
+        if(printSolutionFlag)
+            if (solution != null) {
+                for(int i = 0; i < n; i++)
+                    System.out.println(solution.getIntVal(row_vars[i]) + " " + solution.getIntVal(col_vars[row_vars[i].getValue()-1]));
+            }
+        if(printTimeFlag) {
+            long estimatedTime = solver.getTimeCountInNanoSeconds();
+            System.out.println("Estimated time: " + ((float) estimatedTime / 1000000) + "ms");
+        }
+    }
+
     public static void main(String[] args) {
         PrimalDualDiffModel m = new PrimalDualDiffModel();
 //        m.ferre();
+        m.pizzoli(args);
     }
 
     public static void printSolution(IntVar[] rQueens, IntVar[] cQueens, int n) {
