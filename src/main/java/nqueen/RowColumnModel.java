@@ -15,7 +15,7 @@ public class RowColumnModel extends BaseQueenModel implements Callable, TryYourS
     }
 
     @Override
-    public long ferre(){
+    public Stats ferre(){
         rows = model.intVarArray("R", n, 0, n-1);
         cols = model.intVarArray("C", n, 0, n-1);
 
@@ -34,16 +34,13 @@ public class RowColumnModel extends BaseQueenModel implements Callable, TryYourS
         );
 
         /* Solving and enumerating */
-        long estimatedTime = 0;
-        if (enumerate) {
-            estimatedTime = enumerate(this);
-        }
+        Stats stats = solve(this);
 
-        return estimatedTime;
+        return stats;
         /* Observations
             Unfortunately, this model is not efficient because it introduces several unwanted symmetries in the solutions.
             Every solution is represented as a set of n pairs (row,col); thus, for every legitimate solution, there are
-            n! permutations of these pairs, which all basically represents the same, but are considered different by the solver.
+            n! permutations of these pairs, which all represents the same solution, but are considered different by the solver.
             The total number of solution returned by the solver is then n!*k, where k is the number of legitimate solutions.
             Ex. With n=6 there are k=4 legitimate solutions, with this model the solver returns !6*4 = 2880 solutions.
             This is definitely not a good modeling choice for this problem.

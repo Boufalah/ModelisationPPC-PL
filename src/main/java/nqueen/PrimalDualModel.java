@@ -12,7 +12,7 @@ public class PrimalDualModel extends BaseQueenModel implements Callable, TryYour
     }
 
     @Override
-    public long ferre() {
+    public Stats ferre() {
         // row-based model
         rQueens = model.intVarArray("RQ", n, 0, n-1, false);
         // column-based model
@@ -37,11 +37,9 @@ public class PrimalDualModel extends BaseQueenModel implements Callable, TryYour
         }
 
         /* Solving and enumerating */
-        long estimatedTime = 0;
-        if (enumerate) {
-            estimatedTime = enumerate(this);
-        }
-        return estimatedTime;
+        Stats stats = solve(this);
+
+        return stats;
         /* Observations
 
         */

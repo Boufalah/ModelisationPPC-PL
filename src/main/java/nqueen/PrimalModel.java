@@ -13,7 +13,7 @@ public class PrimalModel extends BaseQueenModel implements Callable, TryYourStuf
     }
 
     @Override
-    public long ferre() {
+    public Stats ferre() {
         rQueens = model.intVarArray("RQ", n, 0, n-1, false);
 
         /* Constraints */
@@ -26,12 +26,9 @@ public class PrimalModel extends BaseQueenModel implements Callable, TryYourStuf
         }
 
         /* Solving and enumerating */
-        long estimatedTime = 0;
-        if (enumerate) {
-            estimatedTime = enumerate(this);
-        }
+        Stats stats = solve(this);
 
-        return estimatedTime;
+        return stats;
     }
 
     @Override

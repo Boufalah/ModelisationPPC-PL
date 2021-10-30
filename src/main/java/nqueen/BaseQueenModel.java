@@ -1,6 +1,7 @@
 package nqueen;
 
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 
 public abstract class BaseQueenModel {
@@ -9,27 +10,42 @@ public abstract class BaseQueenModel {
     protected boolean enumerate;
     protected boolean print;
 
+    static class Stats
+    {
+        public long resolutionTime;
+        public long numOfNodes;
+    };
+    Stats stats;
+
     BaseQueenModel(){}
     BaseQueenModel(String modelName, int n, boolean enumerate, boolean print) {
         this.model = new Model(modelName);
         this.n = n;
         this.enumerate = enumerate;
         this.print = print;
+        this.stats = new Stats();
     }
 
-    protected long enumerate(Callable subclassInstance) {
-        /* Solving and enumerating */
+    protected Stats solve(Callable subclassInstance) {
         Solver solver = model.getSolver();
-        if (print) {
-            for (int i = 1; solver.solve(); i++) {
-                System.out.println("****** Solution n° " + i + " ******");
-                subclassInstance.printSolutions();
+        if (enumerate) {
+            if (print) {
+                for (int i = 1; solver.solve(); i++) {
+                    System.out.println("****** Solution n° " + i + " ******");
+                    subclassInstance.printSolutions();
+                }
+            } else {
+                while (solver.solve());
             }
         } else {
-            while(solver.solve());
+            Solution solution = solver.findSolution();
+            if (print && solution != null) {
+                System.out.println(solution.toString());
+            }
         }
-        long estimatedTime = solver.getTimeCountInNanoSeconds();
+        stats.resolutionTime = solver.getTimeCountInNanoSeconds();
+        stats.numOfNodes = solver.getNodeCount();
 
-        return estimatedTime;
+        return stats;
     }
 }

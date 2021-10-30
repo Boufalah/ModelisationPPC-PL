@@ -17,7 +17,7 @@ public class PrimalDiffModel extends BaseQueenModel implements Callable,TryYourS
 	}
 
 	@Override
-	public long ferre() {
+	public Stats ferre() {
 		rQueens = model.intVarArray("Q", n, 0, n-1, false);
 		IntVar[] diag1 = IntStream.range(0, n).mapToObj(i -> rQueens[i].sub(i).intVar()).toArray(IntVar[]::new);
 		IntVar[] diag2 = IntStream.range(0, n).mapToObj(i -> rQueens[i].add(i).intVar()).toArray(IntVar[]::new);
@@ -30,14 +30,11 @@ public class PrimalDiffModel extends BaseQueenModel implements Callable,TryYourS
 		);
 
 		/* Solving and enumerating */
-		long estimatedTime = 0;
-		if (enumerate) {
-			estimatedTime = enumerate(this);
-		}
+		Stats stats = solve(this);
 
-		return estimatedTime;
+		return stats;
 		/* Observations
-			The modeling is "cleaner" than the nqueen.PrimalModel in my eyes, but performances seem to be worse by an avg factor of 2/3.
+			The modeling is "cleaner" than the PrimalModel in my eyes, but performances seem to be worse by an avg factor of 2/3.
 		*/
 	}
 

@@ -1,7 +1,12 @@
 package nqueen;
 
 public interface TryYourStuff {
-    default long ferre() { return 0; }
+    default BaseQueenModel.Stats ferre() {
+        BaseQueenModel.Stats stats = new BaseQueenModel.Stats();
+        stats.resolutionTime = -1;
+        stats.numOfNodes = -1;
+        return stats;
+    };
     default void pizzoli(String[] args) {};
     default void remi() { }
     default void meryem() { }

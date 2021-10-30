@@ -18,7 +18,7 @@ public class BooleanModel extends BaseQueenModel implements Callable, TryYourStu
     }
 
     @Override
-    public long ferre() {
+    public Stats ferre() {
         // Create a matrix of nxn int variables {0,1}
         rows = model.intVarMatrix("c", n, n, 0, 1);
 
@@ -30,7 +30,6 @@ public class BooleanModel extends BaseQueenModel implements Callable, TryYourStu
             flatArray[index] = rows[i][j];
         }
         model.sum(flatArray,"=",n).post(); // the total number of queens is n
-//??? Is the constraint above somehow useful? The next two are enough to find solutions and the performances seem to be comparable
 
         IntVar[][] cols = new IntVar[n][n];
         for(int j = 0; j < n; j++) {
@@ -54,12 +53,9 @@ public class BooleanModel extends BaseQueenModel implements Callable, TryYourStu
         }
 
         /* Solving and enumerating */
-        long estimatedTime = 0;
-        if (enumerate) {
-            estimatedTime = enumerate(this);
-        }
+        Stats stats = solve(this);
 
-        return estimatedTime;
+        return stats;
     }
 
     @Override
@@ -125,9 +121,9 @@ public class BooleanModel extends BaseQueenModel implements Callable, TryYourStu
     }
 
     public static void main(String[] args) {
-        BooleanModel m = new BooleanModel(6, true, true);
-        m.ferre();
-//        m.pizzoli();
+        BooleanModel m = new BooleanModel();
+        //m.ferre();
+        m.pizzoli(args);
     }
 
     public void printSolutions() {

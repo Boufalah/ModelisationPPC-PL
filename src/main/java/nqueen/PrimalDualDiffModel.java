@@ -17,7 +17,7 @@ public class PrimalDualDiffModel extends BaseQueenModel implements Callable, Try
     }
 
     @Override
-    public long ferre() {
+    public Stats ferre() {
         // row-based model
         rQueens = model.intVarArray("RQ", n, 0, n-1, false);
         IntVar[] rDiag1 = IntStream.range(0, n).mapToObj(i -> rQueens[i].sub(i).intVar()).toArray(IntVar[]::new);
@@ -43,12 +43,9 @@ public class PrimalDualDiffModel extends BaseQueenModel implements Callable, Try
         }
 
         /* Solving and enumerating */
-        long estimatedTime = 0;
-        if (enumerate) {
-            estimatedTime = enumerate(this);
-        }
+        Stats stats = solve(this);
 
-        return estimatedTime;
+        return stats;
         /* Observations
             The model works and the solver returns the expected number of solutions.
             The performances, however, seem to be worse than the simple primal model by an avg factor of 1/2.
