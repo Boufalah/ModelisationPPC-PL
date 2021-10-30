@@ -9,15 +9,14 @@ import org.chocosolver.solver.variables.IntVar;
 
 import static org.chocosolver.util.tools.ArrayUtils.getColumn;
 
-public class BooleanModel extends BaseQueenModel implements Callable, TryYourStuff{
+public class BooleanModel extends BaseQueenModel implements Callable {
     private IntVar[][] rows;
 
     public BooleanModel(int n, boolean enumerate, boolean print) {
         super(n + "-queen problem boolean", n, enumerate, print);
     }
 
-    @Override
-    public Stats ferre() {
+    public Stats buildAndSolve() {
         // Matrix of nxn int variables {0,1}
         rows = model.intVarMatrix("c", n, n, 0, 1);
 

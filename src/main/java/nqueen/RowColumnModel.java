@@ -1,20 +1,16 @@
 package nqueen;
 
-import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Solution;
-import org.chocosolver.solver.expression.discrete.arithmetic.ArExpression;
 import org.chocosolver.solver.variables.IntVar;
 
-public class RowColumnModel extends BaseQueenModel implements Callable, TryYourStuff {
+public class RowColumnModel extends BaseQueenModel implements Callable {
     private IntVar[] rows;
     private IntVar[] cols;
 
     public RowColumnModel(int n, boolean enumerate, boolean print) {
         super(n + "-queen problem row/column", n, enumerate, print);
     }
-
-    @Override
-    public Stats ferre(){
+    
+    public Stats buildAndSolve(){
         rows = model.intVarArray("R", n, 0, n-1);
         cols = model.intVarArray("C", n, 0, n-1);
 
@@ -22,14 +18,14 @@ public class RowColumnModel extends BaseQueenModel implements Callable, TryYourS
         for (int i = 0; i < n; i++) {
             for(int j=0; j < n; j++) {
                 if (i != j) {
-                    rows[i].sub(cols[i]).ne(rows[j].sub(cols[j])).post(); // no two queens on the same major diagonal
-                    rows[i].add(cols[i]).ne(rows[j].add(cols[j])).post(); // no two queens on the same minor diagonal
+                    rows[i].sub(cols[i]).ne(rows[j].sub(cols[j])).post(); // no both queens on same major diagonal
+                    rows[i].add(cols[i]).ne(rows[j].add(cols[j])).post(); // no both queens on same minor diagonal
                 }
             }
         }
         model.post(
-                model.allDifferent(rows), // no two queens on the same row
-                model.allDifferent(cols) // no two queens on the same column
+                model.allDifferent(rows), // no two queens on same row
+                model.allDifferent(cols) // no two queens on same column
         );
 
         /* Solving and enumerating */
@@ -46,47 +42,8 @@ public class RowColumnModel extends BaseQueenModel implements Callable, TryYourS
         */
     }
 
-    @Override
-    public void general() {
-        int n = 8;
-        Model model = new Model(n + "-queens problem");
-
-        IntVar[] c = new IntVar[n];
-        IntVar[] l = new IntVar[n];
-
-        for (int i = 0; i < n; i++) {
-            c[i] = model.intVar("C_" + i, 1, n);
-            l[i] = model.intVar("L_" + i, 1, n);
-        }
-
-        model.allDifferent(c).post();
-        model.allDifferent(l).post();
-
-        for(int i = 0; i < n; i++) {
-            for(int j = 0; j < n; j++) {
-                if(i != j) {
-                    ArExpression tmp_l = l[i].add(c[j].sub(c[i]));
-                    ArExpression tmp_c = c[i].add(l[i].sub(l[j]));
-                    tmp_l.ne(l[j]).post();
-                    tmp_c.ne(c[j]).post();
-                }
-            }
-        }
-
-        Solution solution = model.getSolver().findSolution();
-        if (solution != null) {
-            for(int i = 0; i < n; i++) {
-                System.out.print("(" + solution.getIntVal(l[i]) + ", " + solution.getIntVal(c[i]) + ") ");
-            }
-            System.out.println();
-            // System.out.println(solution.toString());
-        }
-    }
-
     public static void main(String[] args) {
-        RowColumnModel m = new RowColumnModel(6, true, true);
-//        m.general();
-        m.ferre();
+        new RowColumnModel(6, true, false).buildAndSolve();
     }
 
     public void printSolutions() {

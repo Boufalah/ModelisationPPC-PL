@@ -39,13 +39,13 @@ public abstract class BaseQueenModel {
         } else {
             Solution solution = solver.findSolution();
             if (print && solution != null) {
-                System.out.println(solution.toString());
+                subclassInstance.printSolutions();
             }
         }
         stats.resolutionTime = solver.getTimeCountInNanoSeconds();
         stats.numOfNodes = solver.getNodeCount();
 
-        solver.printShortStatistics();
+//        solver.printShortStatistics();
 
         return stats;
     }

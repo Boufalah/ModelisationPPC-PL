@@ -4,15 +4,14 @@ import org.chocosolver.solver.variables.BoolVar;
 
 import static org.chocosolver.util.tools.ArrayUtils.getColumn;
 
-public class BooleanModelAlt extends BaseQueenModel implements Callable, TryYourStuff {
+public class BooleanModelAlt extends BaseQueenModel implements Callable {
     private BoolVar[][] rows;
 
     public BooleanModelAlt(int n, boolean enumerate, boolean print) {
         super(n + "-queen problem boolean alternative", n, enumerate, print);
     }
 
-    @Override
-    public BaseQueenModel.Stats pizzoli() {
+    public BaseQueenModel.Stats buildAndSolve() {
         rows = model.boolVarMatrix("c", n, n);
 
         /* Constraints */

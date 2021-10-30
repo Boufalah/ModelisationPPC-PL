@@ -2,7 +2,7 @@ package nqueen;
 
 import org.chocosolver.solver.variables.IntVar;
 
-public class PrimalDualModel extends BaseQueenModel implements Callable, TryYourStuff {
+public class PrimalDualModel extends BaseQueenModel implements Callable {
     private IntVar[] rQueens;
     private IntVar[] cQueens;
 
@@ -10,8 +10,7 @@ public class PrimalDualModel extends BaseQueenModel implements Callable, TryYour
         super(n + "-queen problem primal/dual", n, enumerate, print);
     }
 
-    @Override
-    public Stats ferre() {
+    public Stats buildAndSolve() {
         // row-based model
         rQueens = model.intVarArray("RQ", n, 0, n-1, false);
         // column-based model
@@ -20,12 +19,13 @@ public class PrimalDualModel extends BaseQueenModel implements Callable, TryYour
         /* Constraints */
         for (int i = 0; i < n - 1; i++) {
             for (int j = i + 1; j < n; j++) {
-                model.arithm(rQueens[i], "!=", rQueens[j]).post(); // no two queens in the same column
-                model.arithm(rQueens[i], "!=", rQueens[j], "-", j - i).post();
-                model.arithm(rQueens[i], "!=", rQueens[j], "+", j - i).post();
-                model.arithm(cQueens[i], "!=", cQueens[j]).post(); // no two queens in the same row
-                model.arithm(cQueens[i], "!=", cQueens[j], "-", j - i).post();
-                model.arithm(cQueens[i], "!=", cQueens[j], "+", j - i).post();
+                model.arithm(rQueens[i], "!=", rQueens[j]).post(); // no both queens on same column
+                model.arithm(rQueens[i], "!=", rQueens[j], "-", j - i).post(); // no both queens on same major diagonal
+                model.arithm(rQueens[i], "!=", rQueens[j], "+", j - i).post(); // no both queens on same minor diagonal
+
+                model.arithm(cQueens[i], "!=", cQueens[j]).post(); // no both queens on same row
+                model.arithm(cQueens[i], "!=", cQueens[j], "-", j - i).post(); // no both queens on same major diagonal
+                model.arithm(cQueens[i], "!=", cQueens[j], "+", j - i).post(); // no both queens on same minor diagonal
             }
         }
 
@@ -44,19 +44,9 @@ public class PrimalDualModel extends BaseQueenModel implements Callable, TryYour
         */
     }
 
-    public static void main(String[] args) {
-        PrimalDualModel m = new PrimalDualModel(6, true, true);
-        m.ferre();
-    }
-
     public void printSolutions() {
         int[][] solved_matrix = new int[n][n];
-        // check solutions
-        for (int i = 0; i < n; i++) {
-            int rQueen = rQueens[i].getValue();
-            System.out.print(rQueens[i]);
-            System.out.println("  " + cQueens[rQueen]);
-        }
+
         // print graphical solution
         for (int i = 0; i < n; i++) {
             solved_matrix[i][rQueens[i].getValue()] = 1;
