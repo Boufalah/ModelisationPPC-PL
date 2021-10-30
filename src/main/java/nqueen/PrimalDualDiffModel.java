@@ -11,7 +11,6 @@ public class PrimalDualDiffModel extends BaseQueenModel implements Callable, Try
     private IntVar[] rQueens;
     private IntVar[] cQueens;
 
-    public PrimalDualDiffModel() {}
     public PrimalDualDiffModel(int n, boolean enumerate, boolean print) {
         super(n + "-queen problem primal/dual allDifferent", n, enumerate, print);
     }
@@ -53,19 +52,12 @@ public class PrimalDualDiffModel extends BaseQueenModel implements Callable, Try
     }
 
     @Override
-    public void pizzoli(String[] args) {
+    public BaseQueenModel.Stats pizzoli() {
         /* java <CLASSNAME> n printSolutionFlag printTimeFlag
          */
         int n = 8;
         boolean printSolutionFlag = true;
         boolean printTimeFlag = true;
-
-        if(args.length > 0)
-            n = Integer.parseInt(args[0]);
-        if(args.length > 1)
-            printSolutionFlag = Boolean.parseBoolean(args[1]);
-        if(args.length > 2)
-            printTimeFlag = Boolean.parseBoolean(args[2]);
 
         Model model = new Model(n + "-QP_rows");
         IntVar[] row_vars = model.intVarArray("R_Q", n, 1, n, false);
@@ -84,18 +76,11 @@ public class PrimalDualDiffModel extends BaseQueenModel implements Callable, Try
                 row_vars[j].eq(i).iff(col_vars[i].eq(j)).post();
             }
         }
-        
-        Solver solver = model.getSolver();
-        Solution solution = solver.findSolution();
-        if(printSolutionFlag)
-            if (solution != null) {
-                for(int i = 0; i < n; i++)
-                    System.out.println(solution.getIntVal(row_vars[i]) + " " + solution.getIntVal(col_vars[row_vars[i].getValue()-1]));
-            }
-        if(printTimeFlag) {
-            long estimatedTime = solver.getTimeCountInNanoSeconds();
-            System.out.println("Estimated time: " + ((float) estimatedTime / 1000000) + "ms");
-        }
+
+        /* Solving and enumerating */
+        Stats stats = solve(this);
+
+        return stats;
     }
 
     public static void main(String[] args) {

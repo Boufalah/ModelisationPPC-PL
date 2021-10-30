@@ -11,7 +11,6 @@ import org.chocosolver.solver.variables.IntVar;
 public class PrimalDiffModel extends BaseQueenModel implements Callable,TryYourStuff {
 	private IntVar[] rQueens;
 
-	public PrimalDiffModel() {}
 	public PrimalDiffModel(int n, boolean enumerate, boolean print) {
 		super(n + "-queen problem primal allDifferent", n, enumerate, print);
 	}

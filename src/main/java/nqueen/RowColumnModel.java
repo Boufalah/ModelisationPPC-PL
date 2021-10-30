@@ -9,7 +9,6 @@ public class RowColumnModel extends BaseQueenModel implements Callable, TryYourS
     private IntVar[] rows;
     private IntVar[] cols;
 
-    public RowColumnModel() {}
     public RowColumnModel(int n, boolean enumerate, boolean print) {
         super(n + "-queen problem row/column", n, enumerate, print);
     }

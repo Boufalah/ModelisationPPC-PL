@@ -12,25 +12,16 @@ import static org.chocosolver.util.tools.ArrayUtils.getColumn;
 public class BooleanModel extends BaseQueenModel implements Callable, TryYourStuff{
     private IntVar[][] rows;
 
-    public BooleanModel() {}
     public BooleanModel(int n, boolean enumerate, boolean print) {
         super(n + "-queen problem boolean", n, enumerate, print);
     }
 
     @Override
     public Stats ferre() {
-        // Create a matrix of nxn int variables {0,1}
+        // Matrix of nxn int variables {0,1}
         rows = model.intVarMatrix("c", n, n, 0, 1);
 
         /* Constraints */
-        IntVar[] flatArray = new IntVar[n*n];
-        for (int index = 0; index < n*n; index++) {
-            int i = index / n;
-            int j = index % n;
-            flatArray[index] = rows[i][j];
-        }
-        model.sum(flatArray,"=",n).post(); // the total number of queens is n
-
         IntVar[][] cols = new IntVar[n][n];
         for(int j = 0; j < n; j++) {
             for (int i = 0; i < n; i++) {
@@ -56,74 +47,6 @@ public class BooleanModel extends BaseQueenModel implements Callable, TryYourStu
         Stats stats = solve(this);
 
         return stats;
-    }
-
-    @Override
-    public void pizzoli(String[] args) {
-        /* java <CLASSNAME> n printSolutionFlag printTimeFlag
-         */
-        int n = 8;
-        boolean printSolutionFlag = true;
-        boolean printTimeFlag = true;
-
-        if(args.length > 0)
-            n = Integer.parseInt(args[0]);
-        if(args.length > 1)
-            printSolutionFlag = Boolean.parseBoolean(args[1]);
-        if(args.length > 2)
-            printTimeFlag = Boolean.parseBoolean(args[2]);
-
-        Model model = new Model(n + "-queens problem");
-        BoolVar[][] vars = new BoolVar[n][n];
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                vars[i][j] = model.boolVar("Q_" + i);
-            }
-        }
-
-        for (int i = 0; i < n; i++) {
-            model.addClausesAtMostOne(vars[i]); // At most one true value for each row
-            model.addClausesAtMostOne(getColumn(vars, i)); // At most one true value for each column
-
-            model.addClausesBoolOrArrayEqualTrue(vars[i]); // Remove "all false values" solution
-            model.addClausesBoolOrArrayEqualTrue(getColumn(vars, i)); // Remove "all false values" solution
-        }
-
-        for(int i = 0; i < n-1; i++) {
-            for(int j = 0; j < n-1; j++) {
-                for(int y = -Math.min(i, j); y < n - Math.max(i,j); y++) {
-                    if(y != 0) {
-                        model.arithm(vars[i][j].intVar(), "+", vars[i + y][j + y].intVar(), "<=", 1).post();
-                        model.arithm(vars[i][n-j-1].intVar(), "+", vars[i + y][n-j-1 - y].intVar(), "<=", 1).post();
-                    }
-                }
-            }
-        }
-
-        Solver solver = model.getSolver();
-        Solution solution = solver.findSolution();
-        if(printSolutionFlag)
-            if (solution != null) {
-                for(int i = 0; i < n; i++) {
-                    for (int j = 0; j < n; j++) {
-                        System.out.print(solution.getIntVal(vars[i][j]) + "  ");
-                    }
-                    System.out.println();
-                }
-                // System.out.println(solution.toString());
-            }
-        if(printTimeFlag) {
-            long estimatedTime = solver.getTimeCountInNanoSeconds();
-            System.out.println("Estimated time: " + ((float) estimatedTime / 1000000) + "ms");
-        }
-
-    }
-
-    public static void main(String[] args) {
-        BooleanModel m = new BooleanModel();
-        //m.ferre();
-        m.pizzoli(args);
     }
 
     public void printSolutions() {

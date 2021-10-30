@@ -6,7 +6,6 @@ public class PrimalDualModel extends BaseQueenModel implements Callable, TryYour
     private IntVar[] rQueens;
     private IntVar[] cQueens;
 
-    public PrimalDualModel() {}
     public PrimalDualModel(int n, boolean enumerate, boolean print) {
         super(n + "-queen problem primal/dual", n, enumerate, print);
     }

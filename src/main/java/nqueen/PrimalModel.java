@@ -7,7 +7,6 @@ import org.chocosolver.solver.variables.IntVar;
 public class PrimalModel extends BaseQueenModel implements Callable, TryYourStuff {
     private IntVar[] rQueens;
 
-    public PrimalModel() {}
     public PrimalModel(int n, boolean enumerate, boolean print) {
         super(n + "-queen problem primal", n, enumerate, print);
     }

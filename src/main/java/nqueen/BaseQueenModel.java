@@ -17,7 +17,6 @@ public abstract class BaseQueenModel {
     };
     Stats stats;
 
-    BaseQueenModel(){}
     BaseQueenModel(String modelName, int n, boolean enumerate, boolean print) {
         this.model = new Model(modelName);
         this.n = n;
@@ -45,6 +44,8 @@ public abstract class BaseQueenModel {
         }
         stats.resolutionTime = solver.getTimeCountInNanoSeconds();
         stats.numOfNodes = solver.getNodeCount();
+
+        solver.printShortStatistics();
 
         return stats;
     }
