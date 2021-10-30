@@ -24,39 +24,33 @@ public class Benchmark {
         idleLoop();
 
         for (int n = 4; n < 10; n++) {
-            EnumMap<EnumModels, BaseQueenModel.Stats> stats = new EnumMap<>(EnumModels.class);
-            EnumMap<EnumModels, Long> numOfNodes = new EnumMap<>(EnumModels.class);
-            EnumMap<EnumModels, Long> timeSum = new EnumMap<>(EnumModels.class);
-            initializeMap(timeSum);
+            EnumMap<EnumModels, BaseQueenModel.Stats> statsMap = new EnumMap<>(EnumModels.class);
+            EnumMap<EnumModels, Long> timeSumMap = new EnumMap<>(EnumModels.class);
+            initializeMap(timeSumMap);
 
             for (int i = 0; i < n_tests; i++) {
-                stats.put(EnumModels.PRIMAL, new PrimalModel(n, true, false).ferre());
-                stats.put(EnumModels.PRIMAL_DIFF, new PrimalDiffModel(n, true, false).ferre());
-                stats.put(EnumModels.BOOLEAN, new BooleanModel(n, true, false).ferre());
-                stats.put(EnumModels.PRIMAL_DUAL, new PrimalDualModel(n, true, false).ferre());
-                stats.put(EnumModels.PRIMAL_DUAL_DIFF, new PrimalDualDiffModel(n, true, false).ferre());
+                statsMap.put(EnumModels.PRIMAL, new PrimalModel(n, true, false).ferre());
+                statsMap.put(EnumModels.PRIMAL_DIFF, new PrimalDiffModel(n, true, false).ferre());
+                statsMap.put(EnumModels.BOOLEAN, new BooleanModel(n, true, false).ferre());
+                statsMap.put(EnumModels.PRIMAL_DUAL, new PrimalDualModel(n, true, false).ferre());
+                statsMap.put(EnumModels.PRIMAL_DUAL_DIFF, new PrimalDualDiffModel(n, true, false).ferre());
 
                 /* Update resolution times */
-                for (EnumModels model : stats.keySet()) {
-                    BaseQueenModel.Stats stats_value = stats.get(model);
-                    long crt_value = timeSum.get(model);
-                    timeSum.put(model, crt_value + stats_value.resolutionTime);
+                for (EnumModels model : statsMap.keySet()) {
+                    BaseQueenModel.Stats stats_value = statsMap.get(model);
+                    long crt_value = timeSumMap.get(model);
+                    timeSumMap.put(model, crt_value + stats_value.resolutionTime);
                 }
-            }
-            /* Get number of nodes */
-            for (EnumModels model : stats.keySet()) {
-                BaseQueenModel.Stats stats_value = stats.get(model);
-                numOfNodes.put(model, stats_value.numOfNodes);
             }
 
             enumWriter.printf("n=%d; %.3f; %.3f; %.3f; %.3f; %.3f%n",
-                    n, timeSum.get(EnumModels.PRIMAL)/n_tests/NANO_SEC, timeSum.get(EnumModels.PRIMAL_DIFF)/n_tests/NANO_SEC,
-                    timeSum.get(EnumModels.BOOLEAN)/n_tests/NANO_SEC, timeSum.get(EnumModels.PRIMAL_DUAL)/n_tests/NANO_SEC,
-                    timeSum.get(EnumModels.PRIMAL_DUAL_DIFF)/n_tests/NANO_SEC);
+                    n, timeSumMap.get(EnumModels.PRIMAL)/n_tests/NANO_SEC, timeSumMap.get(EnumModels.PRIMAL_DIFF)/n_tests/NANO_SEC,
+                    timeSumMap.get(EnumModels.BOOLEAN)/n_tests/NANO_SEC, timeSumMap.get(EnumModels.PRIMAL_DUAL)/n_tests/NANO_SEC,
+                    timeSumMap.get(EnumModels.PRIMAL_DUAL_DIFF)/n_tests/NANO_SEC);
             nodesWriter.printf("n=%d; %d; %d; %d; %d; %d%n",
-                    n, numOfNodes.get(EnumModels.PRIMAL), numOfNodes.get(EnumModels.PRIMAL_DIFF),
-                    numOfNodes.get(EnumModels.BOOLEAN), numOfNodes.get(EnumModels.PRIMAL_DUAL),
-                    numOfNodes.get(EnumModels.PRIMAL_DUAL_DIFF));
+                    n, statsMap.get(EnumModels.PRIMAL).numOfNodes, statsMap.get(EnumModels.PRIMAL_DIFF).numOfNodes,
+                    statsMap.get(EnumModels.BOOLEAN).numOfNodes, statsMap.get(EnumModels.PRIMAL_DUAL).numOfNodes,
+                    statsMap.get(EnumModels.PRIMAL_DUAL_DIFF).numOfNodes);
         }
 
         enumWriter.close();
@@ -72,9 +66,9 @@ public class Benchmark {
         new RowColumnModel(3, true, false).ferre();
     }
 
-    private static void initializeMap(EnumMap<EnumModels, Long> numOfNodes) {
+    private static void initializeMap(EnumMap<EnumModels, Long> mapLong) {
         for (EnumModels model : EnumModels.values()) {
-            numOfNodes.put(model, 0L);
+            mapLong.put(model, 0L);
         }
     }
 
