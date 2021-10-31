@@ -1,5 +1,8 @@
 package nqueen;
 
+import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -7,7 +10,13 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.iterators.DisposableValueIterator;
 
+/**
+ * This custom propagator is idempotent, which means that it will reach a
+ * fix point by itself. This has to be the case, since this is the only propagator
+ * that it's used, hence it has to ensure that constraints are satisfied.
+ */
 public class CustomProp extends Propagator<IntVar> {
+    /** if true every step taken by the propagator is printed */
     private final boolean VERBOSE = false;
     private final int n;
 
@@ -27,9 +36,11 @@ public class CustomProp extends Propagator<IntVar> {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        if (VERBOSE) System.out.println("Propagate method called");
-        // print domain values for each queen
-        printQueenDomains();
+        if (VERBOSE) {
+            System.out.println("Propagate method called");
+            // print domain values for each queen
+            printQueenDomains();
+        }
 
         for (int i = 0; i < n; i++) {
             try {
@@ -43,6 +54,7 @@ public class CustomProp extends Propagator<IntVar> {
                 throw e;
             }
 
+            // if a lower queen domain has changed to 1,2 or 3
             if (exists(domainBecame123)) {
                 i = domainBecame123-1;
                 domainBecame123 = n;  // reset it to out-of-bounds value
@@ -50,27 +62,10 @@ public class CustomProp extends Propagator<IntVar> {
         }
     }
 
-    @Override
-    public ESat isEntailed() {
-        // check if solution is valid
-        boolean problem = false;
-        for (int i = 0; i < n-1; i++) {
-            for (int j = i+1; j < n; j++) {
-                if (vars[i].getValue() == vars[j].getValue()) problem = true;
-                if (i-vars[i].getValue() == j-vars[j].getValue()) problem = true;
-                if (i+vars[i].getValue() == j+vars[j].getValue()) problem = true;
-                if (problem) break;
-            }
-        }
-
-        if (problem) {
-            return ESat.FALSE;
-        } else {
-            return ESat.TRUE;
-        }
-
-    }
-
+    /**
+     * Called when the domain of a queen has size 1
+     * @param row the row of the queen
+     */
     private void removeOne(int row) throws ContradictionException {
         if (VERBOSE) System.out.println("removeOne() called for queen in row " + row);
         int value = vars[row].getValue();
@@ -99,9 +94,13 @@ public class CustomProp extends Propagator<IntVar> {
                 }
             }
         }
-        printQueenDomains();
+        if (VERBOSE) printQueenDomains();
     }
 
+    /**
+     * Called when the domain of a queen has size 2
+     * @param row the row of the queen
+     */
     private void removeTwo(int row) throws ContradictionException {
         if (VERBOSE) System.out.println("removeTwo() called for queen in row " + row);
         DisposableValueIterator vit = vars[row].getValueIterator(true);
@@ -124,9 +123,13 @@ public class CustomProp extends Propagator<IntVar> {
             vars[affectedQueen].removeValue(v1, this);
             vars[affectedQueen].removeValue(v2, this);
         }
-        printQueenDomains();
+        if (VERBOSE) printQueenDomains();
     }
 
+    /**
+     * Called when the domain of a queen has size 3
+     * @param row the row of the queen
+     */
     private void removeThree(int row) throws ContradictionException {
         if (VERBOSE) System.out.println("removeThree() called for queen in row " + row);
         DisposableValueIterator vit = vars[row].getValueIterator(true);
@@ -150,7 +153,34 @@ public class CustomProp extends Propagator<IntVar> {
                 vars[affectedQueen].removeValue(v2, this);
             }
         }
-        printQueenDomains();
+        if (VERBOSE) printQueenDomains();
+    }
+
+    /**
+     * Only checks if a completely instantiated solution is valid
+     */
+    @Override
+    public ESat isEntailed() {
+        if (isCompletelyInstantiated()) {
+            // check if solution is valid
+            boolean problem = false;
+            for (int i = 0; i < n - 1; i++) {
+                for (int j = i + 1; j < n; j++) {
+                    if (vars[i].getValue() == vars[j].getValue()) problem = true;
+                    if (i - vars[i].getValue() == j - vars[j].getValue()) problem = true;
+                    if (i + vars[i].getValue() == j + vars[j].getValue()) problem = true;
+                    if (problem) break;
+                }
+            }
+
+            if (problem) {
+                return ESat.FALSE;
+            } else {
+                return ESat.TRUE;
+            }
+        }
+
+        return ESat.UNDEFINED;
     }
 
     private boolean exists(int index) {
@@ -158,8 +188,6 @@ public class CustomProp extends Propagator<IntVar> {
     }
 
     private void printQueenDomains() {
-        if (!VERBOSE) return;
-
         for (IntVar queen : vars) {
             boolean wait = false;
             int v = -1;

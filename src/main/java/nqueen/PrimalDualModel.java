@@ -3,7 +3,9 @@ package nqueen;
 import org.chocosolver.solver.variables.IntVar;
 
 public class PrimalDualModel extends BaseQueenModel implements Callable {
+    /** Used by the row-based model */
     private IntVar[] rQueens;
+    /** Used by the column-based model */
     private IntVar[] cQueens;
 
     public PrimalDualModel(int n, boolean enumerate, boolean print) {

@@ -8,7 +8,9 @@ import org.chocosolver.solver.variables.IntVar;
 import java.util.stream.IntStream;
 
 public class PrimalDualDiffModel extends BaseQueenModel implements Callable {
+    /** Used by the row-based model */
     private IntVar[] rQueens;
+    /** Used by the column-based model */
     private IntVar[] cQueens;
 
     public PrimalDualDiffModel(int n, boolean enumerate, boolean print) {

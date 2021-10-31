@@ -4,6 +4,9 @@ import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 
+/**
+ * Base class for all the models.
+ */
 public abstract class BaseQueenModel {
     protected Model model;
     protected int n;

@@ -43,7 +43,7 @@ public class RowColumnModel extends BaseQueenModel implements Callable {
     }
 
     public static void main(String[] args) {
-        new RowColumnModel(6, true, false).buildAndSolve();
+        new RowColumnModel(4, true, true).buildAndSolve();
     }
 
     public void printSolutions() {
