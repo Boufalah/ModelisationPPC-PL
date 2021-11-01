@@ -31,9 +31,6 @@ public class PrimalDiffModel extends BaseQueenModel implements Callable {
 		Stats stats = solve(this);
 
 		return stats;
-		/* Observations
-			The modeling is "cleaner" than the PrimalModel in my eyes, but performances seem to be worse by an avg factor of 2/3.
-		*/
 	}
 
 	public void printSolutions() {

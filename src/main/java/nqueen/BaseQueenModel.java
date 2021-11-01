@@ -6,6 +6,7 @@ import org.chocosolver.solver.Solver;
 
 /**
  * Base class for all the models.
+ * It implements a solve method that can also enumerate and print solutions.
  */
 public abstract class BaseQueenModel {
     protected Model model;
@@ -20,7 +21,7 @@ public abstract class BaseQueenModel {
         public long resolutionTime;
         public long numOfNodes;
     };
-    Stats stats;
+    private Stats stats;
 
     BaseQueenModel(String modelName, int n, boolean enumerate, boolean print) {
         this.model = new Model(modelName);

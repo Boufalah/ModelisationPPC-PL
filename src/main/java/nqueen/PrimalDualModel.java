@@ -41,9 +41,6 @@ public class PrimalDualModel extends BaseQueenModel implements Callable {
         Stats stats = solve(this);
 
         return stats;
-        /* Observations
-
-        */
     }
 
     public void printSolutions() {

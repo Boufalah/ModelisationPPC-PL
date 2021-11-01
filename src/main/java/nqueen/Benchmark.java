@@ -27,7 +27,7 @@ public class Benchmark {
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println("Running tests and saving results to stats.csv ...");
+        System.out.println("Running tests and saving results to resolution_enum_stats.csv and nodes_stats.csv...");
 
         PrintWriter enumWriter = new PrintWriter(new FileWriter("resolution_enum_stats.csv"));
         enumWriter.println("n; custom; prim; primDiff; bool; bool_alt; primDual; primDualDiff");
@@ -40,9 +40,9 @@ public class Benchmark {
         execution from the benchmark */
         idleLoop();
 
-        /** Enumeration **/
+        /* Enumeration */
         for (int n = 4; n < 13; n++) {
-            System.out.println(" - Running tests with " + n + " queens ...");
+            System.out.println("Running tests for " + n + "-Queens...");
 
             EnumMap<EnumModels, BaseQueenModel.Stats> statsMap = new EnumMap<>(EnumModels.class);
             EnumMap<EnumModels, Long> timeSumMap = new EnumMap<>(EnumModels.class);

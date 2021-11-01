@@ -46,10 +46,6 @@ public class PrimalDualDiffModel extends BaseQueenModel implements Callable {
         Stats stats = solve(this);
 
         return stats;
-        /* Observations
-            The model works and the solver returns the expected number of solutions.
-            The performances, however, seem to be worse than the simple primal model by an avg factor of 1/2.
-        */
     }
 
     public void printSolutions() {

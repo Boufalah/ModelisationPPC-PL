@@ -32,14 +32,6 @@ public class RowColumnModel extends BaseQueenModel implements Callable {
         Stats stats = solve(this);
 
         return stats;
-        /* Observations
-            Unfortunately, this model is not efficient because it introduces several unwanted symmetries in the solutions.
-            Every solution is represented as a set of n pairs (row,col); thus, for every legitimate solution, there are
-            n! permutations of these pairs, which all represents the same solution, but are considered different by the solver.
-            The total number of solution returned by the solver is then n!*k, where k is the number of legitimate solutions.
-            Ex. With n=6 there are k=4 legitimate solutions, with this model the solver returns !6*4 = 2880 solutions.
-            This is definitely not a good modeling choice for this problem.
-        */
     }
 
     public static void main(String[] args) {
