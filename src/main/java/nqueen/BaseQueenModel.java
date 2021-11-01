@@ -13,6 +13,8 @@ public abstract class BaseQueenModel {
     protected boolean enumerate;
     protected boolean print;
 
+    public abstract Stats buildAndSolve();
+
     static class Stats
     {
         public long resolutionTime;
@@ -22,7 +24,10 @@ public abstract class BaseQueenModel {
 
     BaseQueenModel(String modelName, int n, boolean enumerate, boolean print) {
         this.model = new Model(modelName);
-        this.n = n;
+        if(n >= 1)
+            this.n = n;
+        else
+            this.n = 1;
         this.enumerate = enumerate;
         this.print = print;
         this.stats = new Stats();
