@@ -28,8 +28,6 @@ public class Benchmark {
     public static void main(String[] args) throws IOException {
         System.out.println("Running tests and saving results to stats.csv ...");
 
-        PrintWriter findSolWriter = new PrintWriter(new FileWriter("resolution_stats.csv"));
-        findSolWriter.println("n; custom; prim; primDiff; bool; primDual; primDualDiff");
         PrintWriter enumWriter = new PrintWriter(new FileWriter("resolution_enum_stats.csv"));
         enumWriter.println("n; custom; prim; primDiff; bool; primDual; primDualDiff");
         PrintWriter nodesWriter = new PrintWriter(new FileWriter("nodes_stats.csv"));
@@ -41,36 +39,8 @@ public class Benchmark {
         execution from the benchmark */
         idleLoop();
 
-        /** Find one solution **/
-//        for (int n = 19; n < 23; n++) {
-//            EnumMap<EnumModels, BaseQueenModel.Stats> statsMap = new EnumMap<>(EnumModels.class);
-//            EnumMap<EnumModels, Long> timeSumMap = new EnumMap<>(EnumModels.class);
-//            initializeMap(timeSumMap);
-//
-//            for (int i = 0; i < n_tests; i++) {
-//                statsMap.put(EnumModels.CUSTOM, new CustomModel(n, false, false).buildAndSolve());
-//                statsMap.put(EnumModels.PRIMAL, new PrimalModel(n, false, false).buildAndSolve());
-//                statsMap.put(EnumModels.PRIMAL_DIFF, new PrimalDiffModel(n, false, false).buildAndSolve());
-//                statsMap.put(EnumModels.BOOLEAN, new BooleanModel(n, false, false).buildAndSolve());
-//                statsMap.put(EnumModels.PRIMAL_DUAL, new PrimalDualModel(n, false, false).buildAndSolve());
-//                statsMap.put(EnumModels.PRIMAL_DUAL_DIFF, new PrimalDualDiffModel(n, false, false).buildAndSolve());
-//
-//                /* Update resolution times */
-//                for (EnumModels model : statsMap.keySet()) {
-//                    BaseQueenModel.Stats stats_value = statsMap.get(model);
-//                    long crt_value = timeSumMap.get(model);
-//                    timeSumMap.put(model, crt_value + stats_value.resolutionTime);
-//                }
-//            }
-//
-//            findSolWriter.printf("n=%d; %.6f; %.6f; %.6f; %.6f; %.6f; %.6f%n",
-//                    n, timeSumMap.get(EnumModels.CUSTOM)/n_tests/NANO_SEC, timeSumMap.get(EnumModels.PRIMAL)/n_tests/NANO_SEC,
-//                    timeSumMap.get(EnumModels.PRIMAL_DIFF)/n_tests/NANO_SEC, timeSumMap.get(EnumModels.BOOLEAN)/n_tests/NANO_SEC,
-//                    timeSumMap.get(EnumModels.PRIMAL_DUAL)/n_tests/NANO_SEC, timeSumMap.get(EnumModels.PRIMAL_DUAL_DIFF)/n_tests/NANO_SEC);
-//        }
-
         /** Enumeration **/
-        for (int n = 12; n < 13; n++) {
+        for (int n = 4; n < 5; n++) {
             EnumMap<EnumModels, BaseQueenModel.Stats> statsMap = new EnumMap<>(EnumModels.class);
             EnumMap<EnumModels, Long> timeSumMap = new EnumMap<>(EnumModels.class);
             initializeMap(timeSumMap);
@@ -103,6 +73,5 @@ public class Benchmark {
 
         enumWriter.close();
         nodesWriter.close();
-        findSolWriter.close();
     }
 }

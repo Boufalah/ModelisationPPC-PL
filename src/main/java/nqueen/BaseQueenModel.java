@@ -48,7 +48,7 @@ public abstract class BaseQueenModel {
         stats.resolutionTime = solver.getTimeCountInNanoSeconds();
         stats.numOfNodes = solver.getNodeCount();
 
-//        solver.printShortStatistics();
+//        solver.printStatistics();
 
         return stats;
     }
