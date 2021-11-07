@@ -16,12 +16,13 @@ public abstract class BaseQueenModel {
 
     public abstract Stats buildAndSolve();
 
-    static class Stats
+    public static class Stats
     {
         public long resolutionTime;
         public long numOfNodes;
+        public long numOfSolutions;
     };
-    private Stats stats;
+    public Stats stats;
 
     BaseQueenModel(String modelName, int n, boolean enumerate, boolean print) {
         this.model = new Model(modelName);
@@ -36,16 +37,21 @@ public abstract class BaseQueenModel {
 
     protected Stats solve(Callable subclassInstance) {
         Solver solver = model.getSolver();
+        int i;
         if (enumerate) {
             if (print) {
-                for (int i = 1; solver.solve(); i++) {
+                for (i = 1; solver.solve(); i++) {
                     System.out.println("****** Solution n° " + i + " ******");
                     subclassInstance.printSolutions();
                 }
+                i--;
             } else {
-                while (solver.solve());
+                i = 0;
+                while (solver.solve())
+                    i++;
             }
         } else {
+            i = -1;
             Solution solution = solver.findSolution();
             if (print && solution != null) {
                 subclassInstance.printSolutions();
@@ -53,6 +59,7 @@ public abstract class BaseQueenModel {
         }
         stats.resolutionTime = solver.getTimeCountInNanoSeconds();
         stats.numOfNodes = solver.getNodeCount();
+        stats.numOfSolutions = i;
 
 //        solver.printStatistics();
 
