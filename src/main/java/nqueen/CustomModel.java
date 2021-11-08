@@ -16,6 +16,7 @@ import org.chocosolver.util.tools.ArrayUtils;
 public class CustomModel extends BaseQueenModel implements Callable{
     private IntVar[] rQueens;
     private Benchmark.EnumSearchStrats chosenSearchStrat;
+    private boolean propVERBOSE = false;
 
     public static void main(String[] args) {
         new CustomModel(100, false, false).buildAndSolve();
@@ -28,12 +29,14 @@ public class CustomModel extends BaseQueenModel implements Callable{
     public CustomModel(int n, boolean enumerate, boolean print) {
         this(n, enumerate, print, Benchmark.EnumSearchStrats.DOM_OVER_W);
     }
-
+    public void setPropVERBOSE(boolean value) {
+        this.propVERBOSE = value;
+    }
     public Stats buildAndSolve() {
         rQueens = model.intVarArray("RQ", n, 0, n-1, false);
 
         /* Constraints */
-        Constraint myConstraint = new Constraint("QueenConstraint", new CustomProp(rQueens, n));
+        Constraint myConstraint = new Constraint("QueenConstraint", new CustomProp(rQueens, n, propVERBOSE));
         myConstraint.post();
 
         /* Solving and enumerating */
