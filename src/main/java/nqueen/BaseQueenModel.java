@@ -3,6 +3,13 @@ package nqueen;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMiddle;
+import org.chocosolver.solver.search.strategy.selectors.variables.FirstFail;
+import org.chocosolver.solver.search.strategy.selectors.variables.Smallest;
+import org.chocosolver.solver.search.strategy.selectors.variables.VariableSelectorWithTies;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
+import org.chocosolver.util.tools.ArrayUtils;
 
 /**
  * Base class for all the models.
@@ -13,6 +20,7 @@ public abstract class BaseQueenModel {
     protected int n;
     protected boolean enumerate;
     protected boolean print;
+    protected AbstractStrategy searchStrategy;
 
     public abstract Stats buildAndSolve();
 
@@ -26,32 +34,30 @@ public abstract class BaseQueenModel {
 
     BaseQueenModel(String modelName, int n, boolean enumerate, boolean print) {
         this.model = new Model(modelName);
-        if(n >= 1)
-            this.n = n;
-        else
-            this.n = 1;
+        this.n = Math.max(n, 1);
         this.enumerate = enumerate;
         this.print = print;
         this.stats = new Stats();
+        this.searchStrategy = null;
     }
 
     protected Stats solve(Callable subclassInstance) {
         Solver solver = model.getSolver();
+        if (searchStrategy != null) {
+            solver.setSearch(searchStrategy);
+        }
         int i;
         if (enumerate) {
             if (print) {
-                for (i = 1; solver.solve(); i++) {
-                    System.out.println("****** Solution n° " + i + " ******");
+                for (i = 0; solver.solve(); i++) {
+                    System.out.println("****** Solution n° " + (i+1) + " ******");
                     subclassInstance.printSolutions();
                 }
-                i--;
             } else {
-                i = 0;
-                while (solver.solve())
-                    i++;
+                for (i = 0; solver.solve(); i++);
             }
         } else {
-            i = -1;
+            i = -1; // if no enumeration
             Solution solution = solver.findSolution();
             if (print && solution != null) {
                 subclassInstance.printSolutions();

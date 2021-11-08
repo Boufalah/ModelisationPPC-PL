@@ -1,23 +1,30 @@
 package nqueen;
 
+import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
+import org.chocosolver.solver.variables.IntVar;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.EnumMap;
 
 public class Benchmark {
     private final static int NANO_SEC = 1000000000;
+    private final static int MILLI_SEC = 1000000;
     enum EnumModels { PRIMAL, PRIMAL_DIFF, BOOLEAN, BOOLEAN_ALT, PRIMAL_DUAL, PRIMAL_DUAL_DIFF, ROW_COLUMN, CUSTOM }
+    enum EnumSearchStrats { DOM_OVER_W, MIN_DOM_LB, MIN_DOM_MID, MIN_DOM_UB, FIRST_LB, FIRST_UB, RANDOM }
 
     private static void idleLoop() {
-        new PrimalModel(3, true, false).buildAndSolve();
-        new PrimalDiffModel(3, true, false).buildAndSolve();
-        new BooleanModel(3, true, false).buildAndSolve();
-        new BooleanModelAlt(3, true, false).buildAndSolve();
-        new PrimalDualModel(3, true, false).buildAndSolve();
-        new PrimalDualDiffModel(3, true, false).buildAndSolve();
-        new RowColumnModel(3, true, false).buildAndSolve();
-        new CustomModel(3, true, false).buildAndSolve();
+        new PrimalModel(10, true, false).buildAndSolve();
+        new PrimalDiffModel(10, true, false).buildAndSolve();
+        new BooleanModel(10, true, false).buildAndSolve();
+        new BooleanModelAlt(10, true, false).buildAndSolve();
+        new PrimalDualModel(10, true, false).buildAndSolve();
+        new PrimalDualDiffModel(10, true, false).buildAndSolve();
+        new RowColumnModel(10, true, false).buildAndSolve();
+        new CustomModel(10, true, false).buildAndSolve();
     }
 
     private static void initializeMap(EnumMap<EnumModels, Long> mapLong) {
@@ -26,7 +33,7 @@ public class Benchmark {
         }
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void testModels() throws IOException {
         System.out.println("Running tests and saving results to resolution_enum_stats.csv and nodes_stats.csv...");
 
         PrintWriter enumWriter = new PrintWriter(new FileWriter("resolution_enum_stats.csv"));
@@ -80,4 +87,30 @@ public class Benchmark {
         enumWriter.close();
         nodesWriter.close();
     }
+
+    public static void testSearchStrategies() throws IOException {
+        PrintWriter searchWriter = new PrintWriter(new FileWriter("search_stats.csv"));
+        searchWriter.println("n; domOverW; minDomLB; minDomMid; minDomUB; firstLB; firstUB; random;");
+        for (int n = 4; n <= 29; n++) {
+            System.out.println("******** n = " + n +" *********");
+            searchWriter.printf("%d; ", n);
+            for (EnumSearchStrats searchStrat : EnumSearchStrats.values()) {
+//                if (searchStrat == EnumSearchStrats.MIN_DOM_MID) {
+                float time = new CustomModel(n, false, false, searchStrat).buildAndSolve().resolutionTime
+                            / (float) MILLI_SEC;
+                searchWriter.printf("%.3f; ", time);
+
+//                }
+            }
+            searchWriter.printf("%n");
+        }
+        searchWriter.close();
+    }
+
+    public static void main(String[] args) throws IOException {
+//        testModels();
+        testSearchStrategies();
+    }
+
+
 }

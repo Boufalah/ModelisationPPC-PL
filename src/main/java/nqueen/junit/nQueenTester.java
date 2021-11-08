@@ -12,6 +12,7 @@ class nQueenTester {
     int n = 8;
     BaseQueenModel boolModel, boolModelAlt, primalModel, primalDualModel;
     BaseQueenModel primalDiffModel, primalDualDiffModel, rowColumnModel, customModel;
+
     @org.junit.jupiter.api.BeforeEach
     void setUp() {
         try{
@@ -47,10 +48,10 @@ class nQueenTester {
         assertEquals(92, primalDualDiffModel.buildAndSolve().numOfSolutions);
     }
 
-    @org.junit.jupiter.api.Test
-    void rowColumnBuildAndSolve() {
-        assertEquals(92, rowColumnModel.buildAndSolve().numOfSolutions);
-    }
+//    @org.junit.jupiter.api.Test
+//    void rowColumnBuildAndSolve() {
+//        assertEquals(92, rowColumnModel.buildAndSolve().numOfSolutions);
+//    }
 
     @org.junit.jupiter.api.Test
     void customBuildAndSolve() {
