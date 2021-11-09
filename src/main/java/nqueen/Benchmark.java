@@ -90,17 +90,18 @@ public class Benchmark {
 
     public static void testSearchStrategies() throws IOException {
         PrintWriter searchWriter = new PrintWriter(new FileWriter("search_stats.csv"));
-        searchWriter.println("n; domOverW; minDomLB; minDomMid; minDomUB; firstLB; firstUB; random;");
-        for (int n = 4; n <= 29; n++) {
+        searchWriter.println("n; domOverW;");
+        for (int n = 200; n <= 500; n++) {
             System.out.println("******** n = " + n +" *********");
             searchWriter.printf("%d; ", n);
             for (EnumSearchStrats searchStrat : EnumSearchStrats.values()) {
-//                if (searchStrat == EnumSearchStrats.MIN_DOM_MID) {
-                float time = new CustomModel(n, false, false, searchStrat).buildAndSolve().resolutionTime
-                            / (float) MILLI_SEC;
-                searchWriter.printf("%.3f; ", time);
-
-//                }
+                if (searchStrat == EnumSearchStrats.MIN_DOM_MID) {
+                    System.out.println(searchStrat.toString());
+                    float time = new CustomModel(n, false, false, searchStrat).buildAndSolve().resolutionTime
+                                / (float) MILLI_SEC;
+                    searchWriter.printf("%.3f; ", time);
+                    searchWriter.flush();
+                }
             }
             searchWriter.printf("%n");
         }
