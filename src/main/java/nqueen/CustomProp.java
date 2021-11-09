@@ -17,7 +17,7 @@ import org.chocosolver.util.iterators.DisposableValueIterator;
  */
 public class CustomProp extends Propagator<IntVar> {
     /** if true every step taken by the propagator is printed */
-    private final boolean VERBOSE = false;
+    private boolean VERBOSE = false;
     private final int n;
 
     /*
@@ -27,11 +27,12 @@ public class CustomProp extends Propagator<IntVar> {
     */
     private int domainBecame123;
 
-    public CustomProp(IntVar[] rQueens, int n) {
+    public CustomProp(IntVar[] rQueens, int n, boolean VERBOSE) {
         super(rQueens, PropagatorPriority.LINEAR, false);
         this.n = n;
         this.domainBecame123 = n; // This variable is supposed to take values in [0,n-1].
                                   // This out-of-bounds assignment is just to make propagate work properly.
+        this.VERBOSE = VERBOSE;
     }
 
     @Override

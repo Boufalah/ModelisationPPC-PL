@@ -88,6 +88,13 @@ public class Benchmark {
         nodesWriter.close();
     }
 
+    public static void testPropagateMethod() {
+        int n = 8;
+        CustomModel model = new CustomModel(n, false, false);
+        model.setPropVERBOSE(true);
+        model.buildAndSolve();
+    }
+
     public static void testSearchStrategies() throws IOException {
         PrintWriter searchWriter = new PrintWriter(new FileWriter("search_stats.csv"));
         searchWriter.println("n; domOverW;");
@@ -110,7 +117,8 @@ public class Benchmark {
 
     public static void main(String[] args) throws IOException {
 //        testModels();
-        testSearchStrategies();
+        testPropagateMethod();
+
     }
 
 
