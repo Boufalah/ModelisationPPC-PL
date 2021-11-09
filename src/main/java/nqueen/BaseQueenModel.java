@@ -3,13 +3,7 @@ package nqueen;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.search.strategy.Search;
-import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMiddle;
-import org.chocosolver.solver.search.strategy.selectors.variables.FirstFail;
-import org.chocosolver.solver.search.strategy.selectors.variables.Smallest;
-import org.chocosolver.solver.search.strategy.selectors.variables.VariableSelectorWithTies;
 import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
-import org.chocosolver.util.tools.ArrayUtils;
 
 /**
  * Base class for all the models.

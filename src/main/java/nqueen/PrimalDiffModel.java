@@ -1,12 +1,8 @@
 package nqueen;
 
-import java.util.stream.IntStream;
-
-import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Solution;
-import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
+
+import java.util.stream.IntStream;
 
 public class PrimalDiffModel extends BaseQueenModel implements Callable {
 	private IntVar[] rQueens;
