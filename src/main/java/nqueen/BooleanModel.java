@@ -1,13 +1,6 @@
 package nqueen;
 
-import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Solution;
-import java.lang.*;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.IntVar;
-
-import static org.chocosolver.util.tools.ArrayUtils.getColumn;
 
 public class BooleanModel extends BaseQueenModel implements Callable {
     private IntVar[][] rows;

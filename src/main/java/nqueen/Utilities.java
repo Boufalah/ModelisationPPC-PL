@@ -1,9 +1,5 @@
 package nqueen;
 
-import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.variables.IntVar;
-
 public final class Utilities {
     /**
      * Prints a int[n][n] matrix in a simple graphical form

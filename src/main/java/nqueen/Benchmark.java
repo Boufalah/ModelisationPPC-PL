@@ -1,13 +1,8 @@
 package nqueen;
 
-import org.chocosolver.solver.search.strategy.Search;
-import org.chocosolver.solver.search.strategy.strategy.AbstractStrategy;
-import org.chocosolver.solver.variables.IntVar;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.EnumMap;
 
 public class Benchmark {
@@ -88,12 +83,6 @@ public class Benchmark {
         nodesWriter.close();
     }
 
-    public static void testPropagateMethod() {
-        int n = 8;
-        CustomModel model = new CustomModel(n, false, false);
-        model.setPropVERBOSE(true);
-        model.buildAndSolve();
-    }
 
     public static void testSearchStrategies() throws IOException {
         PrintWriter searchWriter = new PrintWriter(new FileWriter("search_stats.csv"));
@@ -115,10 +104,17 @@ public class Benchmark {
         searchWriter.close();
     }
 
-    public static void main(String[] args) throws IOException {
-//        testModels();
-        testPropagateMethod();
+    public static void testPropagateMethod() {
+        int n = 8;
+        CustomModel model = new CustomModel(n, false, false);
+        model.setPropVERBOSE(true);
+        model.buildAndSolve();
+    }
 
+    public static void main(String[] args) throws IOException {
+//        testModels();              // uncomment to test models
+//        testSearchStrategies();    // uncomment to test search strategies with Custom model
+//        testPropagateMethod();     // uncomment to see the Custom propagator in action
     }
 
 

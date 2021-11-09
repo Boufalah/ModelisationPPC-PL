@@ -2,7 +2,7 @@ package nqueen.junit;
 
 import nqueen.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class nQueenTester {
     /*
