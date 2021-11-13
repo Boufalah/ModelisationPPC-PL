@@ -17,12 +17,12 @@ Time slot index : w * (D*2) + d * 2 + s
 
 Boolean :
 
-Let X_ij a boolean variable that indicates that a lecture of course j is scheduled on time slot i.
+Let X<sub>ij</sub> a boolean variable that indicates that a lecture of course j is scheduled on time slot i.
 
 Integer :
 
 For each course, there are 3 arrays :
 
-- w_jk indicates that the k-th lecture of course j  is scheduled on week w_kj
-- d_kj : for the day
-- s_kj : for morning/afternoon
+- w<sub>jk</sub> indicates that the k-th lecture of course j  is scheduled on week w_<sub>kj</sub>
+- d<sub>kj</sub> : for the day
+- s<sub>kj</sub> : for morning/afternoon
