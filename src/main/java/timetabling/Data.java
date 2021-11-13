@@ -1,22 +1,22 @@
 package timetabling;
 
-public class BaseModel {
+public class Data {
 	
 	int weeks;
 	
 	int days;
 	
-	int timeslots;
+	int timesOfDay;
 	
 	int courses;
 	
 	int lectures;
 
-	public BaseModel(int weeks, int days, int timeslots, int courses, int lectures) {
+	public Data(int weeks, int days, int timeslots, int courses, int lectures) {
 		super();
 		this.weeks = weeks;
 		this.days = days;
-		this.timeslots = timeslots;
+		this.timesOfDay = timeslots;
 		this.courses = courses;
 		this.lectures = lectures;
 	}
