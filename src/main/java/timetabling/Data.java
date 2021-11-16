@@ -11,6 +11,14 @@ public class Data {
 	int courses;
 	
 	int lectures;
+	
+	int minDisInDays;
+	
+	int maxDisInDays;
+	
+	int maxDiffDaysForACourse;
+	
+	int maxWeeksForCourse;
 
 	public Data(int weeks, int days, int timeslots, int courses, int lectures) {
 		super();
