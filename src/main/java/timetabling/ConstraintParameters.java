@@ -2,7 +2,7 @@ package timetabling;
 
 public class ConstraintParameters {
 	
-	int minDisInDays;
+	int minDisInSlot;
 	
 	int maxDisInDays;
 	
@@ -10,4 +10,10 @@ public class ConstraintParameters {
 	
 	int maxWeeksForCourse;
 
+	public ConstraintParameters(int minDisInDays, int maxDisInDays, int maxDiffDaysForACourse, int maxWeeksForCourse) {
+		this.minDisInSlot = minDisInDays;
+		this.maxDisInDays = maxDisInDays;
+		this.maxDiffDaysForACourse = maxDiffDaysForACourse;
+		this.maxWeeksForCourse = maxWeeksForCourse;
+	}
 }

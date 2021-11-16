@@ -1,5 +1,7 @@
 package timetabling;
 
+import org.chocosolver.solver.Solver;
+
 public class Data {
 	
 	int weeks;
