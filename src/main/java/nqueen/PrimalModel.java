@@ -1,10 +1,18 @@
 package nqueen;
 
+import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.search.strategy.selectors.values.IntDomainMiddle;
+import org.chocosolver.solver.search.strategy.selectors.variables.FirstFail;
 import org.chocosolver.solver.variables.IntVar;
 
 public class PrimalModel extends BaseQueenModel implements Callable {
     private IntVar[] rQueens;
+    private Benchmark.EnumSearchStrats chosenSearchStrat;
 
+    public PrimalModel(int n, boolean enumerate, boolean print, Benchmark.EnumSearchStrats searchStrat) {
+        super(n + "-queen problem custom", n, enumerate, print);
+        this.chosenSearchStrat = searchStrat;
+    }
     public PrimalModel(int n, boolean enumerate, boolean print) {
         super(n + "-queen problem primal", n, enumerate, print);
     }
@@ -22,6 +30,17 @@ public class PrimalModel extends BaseQueenModel implements Callable {
         }
 
         /* Solving and enumerating */
+        searchStrategy = switch (chosenSearchStrat) {  // search strategy choice
+            case DOM_OVER_W -> Search.domOverWDegSearch(rQueens);
+            case MIN_DOM_LB -> Search.minDomLBSearch(rQueens);
+            case MIN_DOM_MID -> Search.intVarSearch(new FirstFail(model),
+                    new IntDomainMiddle(false),
+                    rQueens);
+            case MIN_DOM_UB -> Search.minDomUBSearch(rQueens);
+            case FIRST_LB -> Search.inputOrderLBSearch(rQueens);
+            case FIRST_UB -> Search.inputOrderUBSearch(rQueens);
+            case RANDOM -> Search.randomSearch(rQueens, System.currentTimeMillis());
+        };
         Stats stats = solve(this);
 
         return stats;
@@ -29,7 +48,6 @@ public class PrimalModel extends BaseQueenModel implements Callable {
 
     public static void main(String[] args) {
         new PrimalModel(12, true, false).buildAndSolve();
-
     }
 
     public void printSolutions() {
