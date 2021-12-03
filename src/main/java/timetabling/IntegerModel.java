@@ -5,168 +5,200 @@ import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.IntVar;
 
+import java.util.ArrayList;
+
 
 public class IntegerModel {
 	Data data;
+	Model model;
 
 	public IntegerModel(Data data) {
 		this.data = data;
+		// Declaring model
+		model = new Model("Timetabling problem");
+	}
+
+	public Model getModel() {
+		return model;
 	}
 
 	public static void main(String[] args) {
-		Data d = Instances.large1;
-		IntegerModel m = new IntegerModel(d);
+		Data d = Instances.small1;
+		IntegerModel integerModel = new IntegerModel(d);//verbose
+		// build and solve
+		integerModel.buildAndSolve();
+	}
 
-		// Declaring model
+	private void buildAndSolve() {
+		IntVar[][] W = new IntVar[data.courses][data.lectures];
+		IntVar[][] D = new IntVar[data.courses][data.lectures];
+		IntVar[][] T = new IntVar[data.courses][data.lectures];
 
-		Model model = new Model("Timetabling problem");
-
-		IntVar[][] W = new IntVar[m.data.courses][m.data.lectures];
-		IntVar[][] D = new IntVar[m.data.courses][m.data.lectures];
-		IntVar[][] T = new IntVar[m.data.courses][m.data.lectures];
-
-		for(int i = 0; i < m.data.courses; i++) {
-			for(int j = 0; j < m.data.lectures; j++) {
-				W[i][j] = model.intVar("W"+i+","+j ,0, m.data.weeks-1, false);
-				D[i][j] = model.intVar("D"+i+","+j, 0, m.data.days-1, false);
-				T[i][j] = model.intVar("T"+i+","+j, 0, m.data.timesOfDay-1, false);
+		for(int i = 0; i < data.courses; i++) {
+			for(int j = 0; j < data.lectures; j++) {
+				W[i][j] = getModel().intVar("W"+i+","+j ,0, data.weeks-1, false);
+				D[i][j] = getModel().intVar("D"+i+","+j, 0, data.days-1, false);
+				T[i][j] = getModel().intVar("T"+i+","+j, 0, data.timesOfDay-1, false);
 			}
 		}
+
+
+		// flat the matrix W and D and S to one array timeslots
+		IntVar[] timeslots;// size = data.courses*data.lectures
+		timeslots = flatMatrixWDT( W, D, T);
 
 		// Defining constraints
 
-		int size = m.data.courses * m.data.lectures;
-
-		IntVar[] timeslots;
-		timeslots = model.intVarArray("T", size,0 , m.data.weeks*m.data.days*m.data.timesOfDay-1, false);
-
-		for(int i = 0; i < m.data.courses; i++) {
-			for(int j = 0; j < m.data.lectures; j++) {
-				timeslots[i*m.data.lectures+j].eq(
-						W[i][j].mul(m.data.days*m.data.timesOfDay).add(D[i][j].mul(m.data.timesOfDay)).add(T[i][j])).post();
-			}
-		}
-
-		model.allDifferent(timeslots).post();
-
+		//one lecture per time slot
+		OneLecturePerTimeSlotConstraint(timeslots);
 
 		// Min/ Max nb of slots (disMin) between lectures of same course
-		for(int i = 0; i < m.data.courses; i++) {
-			for(int j = 1; j < m.data.lectures; j++) {
-				//timeslots[j]-timeslots[j-1] > minDisInSlots
-				timeslots[i*m.data.lectures+j].sub(timeslots[i*m.data.lectures+(j-1)]).ge(ConstraintParameters.minDisInSlots).post();
-				//timeslots[j]-timeslots[j-1] < maxDisInSlots
-				timeslots[i*m.data.lectures+j].sub(timeslots[i*m.data.lectures+(j-1)]).le(ConstraintParameters.maxDisInSlots).post();
-			}
-		}
+		minMaxDistanceConstraint(timeslots);
 
 		// Max nb of different days of the week for a course
-		for (int i = 0; i < m.data.courses; i++) {
-			model.nValues(D[i],model.intVar(ConstraintParameters.maxDiffDaysForACourse)).post();
-		}
+		maxNbDaysConstraint(D);
 
 		// Max nb of week for a course
-		for (int i = 0; i < m.data.courses; i++) {
-			model.atMostNValues(W[i],model.intVar(ConstraintParameters.maxWeeksForCourse),true).post();
-		}
+		maxNbWeekConstraint(W);
 
 		// The course should be in the same period of day
-		for (int i = 0; i < m.data.courses; i++) {
-			model.allEqual(T[i]).post();
-		}
-
-
-		/*int timeSlotperWeek = m.data.days * m.data.timesOfDay;
-
-		// One lecture of each course per week
-		if (timeSlotperWeek >= m.data.courses && m.data.lectures == m.data.weeks) {
-			System.out.println("Case 1 ");
-			for (int i = 0; i < m.data.courses; i++) {
-				for (int j = 1; j < m.data.lectures; j++) {
-					// lectures of a course can't be in the same week, is in the same day and in the same timeofday
-					model.arithm(W[i][j - 1], "<", W[i][j]).post();
-					model.arithm(D[i][j - 1], "=", D[i][j]).post();
-					model.arithm(T[i][j - 1], "=", T[i][j]).post();
-				}
-			}
-		}// regular
-
-		if(timeSlotperWeek >= m.data.courses && m.data.lectures > m.data.weeks){
-			System.out.println("Case 2 ");
-			// distance can vary depending on nb of lectures and nb of days
-			int disD = 1;
-			for (int i = 0; i < m.data.courses; i++) {
-				for (int j = 1; j < m.data.lectures; j++) {
-					// lectures of a course can be in the same week but maximum <disD> days apart
-					ReExpression y1 = W[i][j - 1].eq(W[i][j]).and(D[i][j].sub(D[i][j-1]).gt(disD));
-					ReExpression y2 = W[i][j - 1].lt(W[i][j]).and(D[i][j - 1].eq(D[i][j]).and(T[i][j - 1].eq(T[i][j])));
-					y1.or(y2).post();
-				}
-			}
-		}
-
-
-		if (timeSlotperWeek >= m.data.courses && m.data.lectures < m.data.weeks) {
-			System.out.println("Case 3 ");
-			int disW = 1;
-			for (int i = 0; i < m.data.courses; i++) {
-				for (int j = 1; j < m.data.lectures; j++) {
-					// lectures of a course are maximum <disW> weeks apart
-					ArExpression diff = W[i][j].sub(W[i][j-1]);
-					ReExpression y1 = diff.le(disW).and(diff.gt(0)).and(D[i][j - 1].eq(D[i][j]).and(T[i][j - 1].eq(T[i][j])));
-					y1.post();
-				}
-			}
-		}
-
-		IntVar[] flatW = model.intVarArray("F", size,0 , m.data.weeks-1, false);
-
-		for (int i = 0; i < m.data.courses; i++) {
-			for (int j = 0; j < m.data.lectures; j++) {
-				flatW[i*m.data.lectures+j].eq(W[i][j]).post();
-			}
-		}
+		samePeriodOfDayConstraint(T);
 
 		// No empty week
-		IntVar diffValues = model.intVar(m.data.weeks);
-		model.nValues(flatW, diffValues).post();
-*/
+		noEmptyWeekConst(W);
+
 		// Solving
 
-		Solver solver = model.getSolver();
-		int i = 1;
+		Solver solver = getModel().getSolver();
+//		int i = 1;
 //		while(solver.solve()){
 //			System.out.println("Solution n° "+i);
-//			m.printSolution(W,D,T);
+//			printSolution(W,D,T);
 //			i++;
 //			System.out.println();
 //		}
 		Solution solution = solver.findSolution();
 
 		if(solution != null) {
-			m.printSolution(W,D,T);
-//			//m.print(W,D,T);
-//			ArrayList<Integer> timeSlotsArray = new ArrayList<>();
-//			for (int i = 0; i < size; i++) {
-//				timeSlotsArray.set(i,timeslots[i].getValue());
-//			}
-//			ArrayList<Integer> sortedCourses = new ArrayList<>();
-//			for (int i = 0; i< size; i++) {
-//				sortedCourses.set(i, timeSlotsArray.indexOf(i));
-//			}
-//			for (int i = 0; i < m.data.courses; i++) {
-//				for (int j = 0; j < m.data.lectures; j++) {
-//				//	sortedCourses.set(,i*m.data.lectures+j);
-//				}
-//			}
+			System.out.println("Timetabling by Courses");
+			printSolutionPerCourse(W,D,T);
+			printSolutionPerWeek(timeslots);
 		}
 	}
 
-	public void printSolution(IntVar[][] W,IntVar[][] D,IntVar[][] T){
+	private  void samePeriodOfDayConstraint(IntVar[][] t) {
+		for (int i = 0; i < data.courses; i++) {
+			getModel().allEqual(t[i]).post();
+		}
+	}
+
+	private  void maxNbWeekConstraint( IntVar[][] w) {
+		for (int i = 0; i < data.courses; i++) {
+			getModel().atMostNValues(w[i], getModel().intVar(ConstraintParameters.maxWeeksForCourse),true).post();
+		}
+	}
+
+	private void maxNbDaysConstraint(IntVar[][] d) {
+		for (int i = 0; i < data.courses; i++) {
+			getModel().nValues(d[i], getModel().intVar(ConstraintParameters.maxDiffDaysForACourse)).post();
+		}
+	}
+
+	private  void minMaxDistanceConstraint( IntVar[] timeslots) {
+		for(int i = 0; i < data.courses; i++) {
+			for(int j = 1; j < data.lectures; j++) {
+				int first = i* data.lectures+j;
+				int next = i* data.lectures+(j-1);
+				//timeslots[j]-timeslots[j-1] > minDisInSlots
+				timeslots[first].sub(timeslots[next]).ge(ConstraintParameters.minDisInSlots).post();
+				//timeslots[j]-timeslots[j-1] < maxDisInSlots
+				timeslots[first].sub(timeslots[next]).le(ConstraintParameters.maxDisInSlots).post();
+			}
+		}
+	}
+
+	private  void OneLecturePerTimeSlotConstraint(IntVar[] timeslots) {
+		getModel().allDifferent(timeslots).post();
+	}
+
+	private  IntVar[] flatMatrixWDT( IntVar[][] w, IntVar[][] d, IntVar[][] t) {
+		IntVar[] timeslots;
+		int size = data.courses* data.lectures;
+		timeslots = getModel().intVarArray("T", size,0 , data.weeks*data.days* data.timesOfDay-1, false);
+
+		for(int i = 0; i < data.courses; i++) {
+			for(int j = 0; j < data.lectures; j++) {
+				timeslots[i* data.lectures+j].eq(
+						w[i][j].mul(data.days* data.timesOfDay).add(d[i][j].mul(data.timesOfDay)).add(t[i][j])).post();
+			}
+		}
+		return timeslots;
+	}
+
+	private void noEmptyWeekConst(IntVar[][] w) {
+		int size = data.courses*data.lectures;
+		IntVar[] flatW = model.intVarArray("F", size,0 , data.weeks-1, false);
+
+		for (int i = 0; i < data.courses; i++) {
+			for (int j = 0; j < data.lectures; j++) {
+				flatW[i* data.lectures+j].eq(w[i][j]).post();
+			}
+		}
+		IntVar diffValues = model.intVar(data.weeks);
+		model.nValues(flatW, diffValues).post();
+	}
+
+	public String courseAndLecture(int v){
+		int j;
+		int i;
+		for (i = 0; i < data.courses ; i++) {
+			for (j = 0; j < data.lectures && v!=i*data.lectures+j ; j++) {
+			}
+			if (j < data.lectures && v==i*data.lectures+j){
+				return "(C"+i+"L"+j+")";
+			}
+		}
+		return "";
+	}
+	public void printSolutionPerCourse(IntVar[][] W, IntVar[][] D, IntVar[][] T){
 		for (int i = 0; i< data.courses; i++) {
 			for (int j= 0 ;j< data.lectures;j++){
 				System.out.println("Course "+i+" Lecture "+j+" Week "+W[i][j].getValue()+ " Day "+D[i][j].getValue()+" T "+T[i][j].getValue() );
 			}
 		}
 	}
+
+	public void printSolutionPerWeek(IntVar[] timeslots){
+		System.out.println("Timetabling by Week");
+		int sizeTimeSlots =data.weeks*data.days*data.timesOfDay;
+		ArrayList<Integer> timeSlotsArray = new ArrayList<>();
+		for (int i = 0; i < sizeTimeSlots; i++) {
+			timeSlotsArray.add(-1);
+		}
+		int size = data.courses*data.lectures;
+		for (int i = 0; i < size; i++) {
+			timeSlotsArray.add(i,timeslots[i].getValue());
+		}
+		for (int i = 0; i< data.weeks; i++){
+			System.out.println("Week"+i+"  ");
+			for (int j = 0; j < data.days; j++) {
+				System.out.print("\t\tDay "+j+" [");
+				for (int k = 0; k < data.timesOfDay; k++) {
+					System.out.print("S"+k+" ");
+					int index = i * data.days *data.timesOfDay+ j * data.timesOfDay + k;
+					int valeur = timeSlotsArray.indexOf(index);
+
+					if (valeur == -1)
+						System.out.print("__  |");
+					else{
+						System.out.print(courseAndLecture(valeur)+"  |");
+					}
+				}
+				System.out.println("] ");
+			}
+			System.out.println();
+		}
+
+	}
+
 }
