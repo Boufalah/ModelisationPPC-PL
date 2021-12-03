@@ -9,10 +9,10 @@ public class ModelsMain {
         ArrayList<Data> instances = new ArrayList<>();
         instances.add(Instances.small1);
         instances.add(Instances.small2);
-        instances.add(Instances.medium1);
-        instances.add(Instances.medium1);
-        instances.add(Instances.large1);
-        instances.add(Instances.large2);
+//        instances.add(Instances.medium1);
+//        instances.add(Instances.medium2);
+//        instances.add(Instances.large1);
+//        instances.add(Instances.large2);
 
         int i = 0;
         for (Data d: instances) {
@@ -22,9 +22,9 @@ public class ModelsMain {
             // build and solve
             System.out.println("################# ################# ################# ################# ");
             System.out.println("Instance "+i);
-            System.out.println("################# Bool #################");
+            System.out.println("################# Boolean #################");
             boolModel.buildAndSolve();
-            System.out.println("#################Interger commun Constraint with bool #################"+i);
+            System.out.println("#################Integer common Constraint with boolean #################"+i);
             integerModel1.communConstraintWithBool();
             Solver solver = integerModel1.getModel().getSolver();
             while(solver.solve()) {
@@ -32,8 +32,9 @@ public class ModelsMain {
             }
             solver.printStatistics();
 
-            System.out.println("################# Interger all Constraint ################# "+i);
+            System.out.println("################# Integer all constraints ################# "+i);
             integerModel2.buildAndSolve();
+            i++;
         }
     }
 }
