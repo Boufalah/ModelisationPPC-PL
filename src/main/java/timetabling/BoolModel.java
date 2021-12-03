@@ -4,10 +4,13 @@ import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.BoolVar;
 
+import java.util.Date;
+
 import static org.chocosolver.util.tools.ArrayUtils.getColumn;
 
 public class BoolModel {
     Data data;
+    long solutionCount;
 
     public BoolModel(Data data) {
         this.data = data;
@@ -36,8 +39,8 @@ public class BoolModel {
             }
         }
 
-        // Min num of slots between lectures of the same course.
-        int MIN_SLOTS = 3;
+//        // Min num of slots between lectures of the same course.
+        int MIN_SLOTS = ConstraintParameters.minDisInSlots-1;
         for (int j = 0; j < data.courses; j++) {
             for (int i = 0; i < data.weeks*data.days*data.timesOfDay-MIN_SLOTS; i++) {
                 BoolVar[] slots_per_course = new BoolVar[MIN_SLOTS+1];
@@ -49,7 +52,7 @@ public class BoolModel {
         }
 
         // Max num of slots between lectures of the same course.
-        int MAX_SLOTS = 6;
+        int MAX_SLOTS = ConstraintParameters.maxDisInSlots;
         for (int j = 0; j < data.courses; j++) {
             for (int i = 0; i < data.weeks*data.days*data.timesOfDay-MAX_SLOTS; i++) {
                 BoolVar[] slots_per_course = new BoolVar[MAX_SLOTS];
@@ -67,14 +70,26 @@ public class BoolModel {
                 model.or(c1, c2).post();
             }
         }
+//      // Max nb for weeks for a course
+        // find the first occ of 1 and the last occ of 1 and sub the indexes to find the distance
 
-        // Max num of different days of the week for a course
-//        for (int course = 0; course < N; course++) {
-//            BoolVar[][] slots_per_day = new BoolVar[D][W*S];
-//            for (int day = 0; day < D; day++) {
-//                for (int w = 0; w < W; w++) {
-//                    for (int s = 0; s < S; s++) {
-//                        slots_per_day[day][w*S+s] = x[w*D*S+day+s][course];
+//        int Max_Week = ConstraintParameters.maxWeeksForCourse;
+//        for (int j = 0; j < data.courses; j++) {
+//                BoolVar[] slots_per_course = new BoolVar[data.weeks*data.days*data.timesOfDay];
+//                for (int k = 0; k < data.weeks*data.days*data.timesOfDay; k++) {
+//                    slots_per_course[k] = x[k][j];
+//                }
+//        }
+
+
+
+//        // Max num of different days of the week for a course
+//        for (int course = 0; course < data.courses; course++) {
+//            BoolVar[][] slots_per_day = new BoolVar[data.days][];
+//            for (int day = 0; day < data.days; day++) {
+//                for (int w = 0; w < data.weeks; w++) {
+//                    for (int s = 0; s < data.timesOfDay; s++) {
+//                        slots_per_day[day][w*data.timesOfDay+s] = x[w*data.days*data.timesOfDay+day+s][course];
 //                    }
 //                }
 //            }
@@ -83,10 +98,15 @@ public class BoolModel {
 
 
         Solver solver = model.getSolver();
-        for(int i=0; i<20 && solver.solve(); i++) {
+       /* for(int i=0; i<20 && solver.solve(); i++) {
             printMatrix(x, data.weeks*data.days*data.timesOfDay, data.courses);
             System.out.println();
+        }*/
+        solutionCount =0;
+        while(solver.solve()){
+            solutionCount++;
         }
+        solver.printStatistics();
     }
 
     public static void printMatrix(BoolVar matrix[][], int n, int m) {
@@ -104,7 +124,8 @@ public class BoolModel {
     }
 
     public static void main(String[] args) {
-        Data d = new Data(3, 5, 2, 5, 5);
+      //  Data d = new Data(3, 5, 2, 5, 5);
+        Data d = Instances.small1;
         new BoolModel(d).buildAndSolve();
     }
 }
