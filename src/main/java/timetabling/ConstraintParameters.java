@@ -2,18 +2,11 @@ package timetabling;
 
 public class ConstraintParameters {
 	
-	int minDisInSlot;
+	static int minDisInSlots = 4;
 	
-	int maxDisInDays;
+	static int maxDisInSlots = 16;
 	
-	int maxDiffDaysForACourse;
+	static int maxDiffDaysForACourse = 2;
 	
-	int maxWeeksForCourse;
-
-	public ConstraintParameters(int minDisInDays, int maxDisInDays, int maxDiffDaysForACourse, int maxWeeksForCourse) {
-		this.minDisInSlot = minDisInDays;
-		this.maxDisInDays = maxDisInDays;
-		this.maxDiffDaysForACourse = maxDiffDaysForACourse;
-		this.maxWeeksForCourse = maxWeeksForCourse;
-	}
+	static int maxWeeksForCourse = 4;
 }

@@ -12,8 +12,8 @@ package timetabling;
 	
 	static Data medium2 = new Data(8,4,2,5,5);
 	
-	static Data large1 = new Data(10,5,2,6,6);
+	static Data large1 = new Data(8,5,2,8,8);
 	
-	static Data large2 = new Data(12,5,2,7,7);
+	static Data large2 = new Data(10,5,2,10,8);
 	
 }

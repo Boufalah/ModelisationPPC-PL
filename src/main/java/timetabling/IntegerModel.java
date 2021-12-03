@@ -1,6 +1,7 @@
 package timetabling;
 
 import org.chocosolver.solver.Model;
+import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.IntVar;
 
@@ -13,7 +14,7 @@ public class IntegerModel {
 	}
 
 	public static void main(String[] args) {
-		Data d = new Data(3, 4, 2, 2, 3);
+		Data d = Instances.large1;
 		IntegerModel m = new IntegerModel(d);
 
 		// Declaring model
@@ -47,31 +48,32 @@ public class IntegerModel {
 		}
 
 		model.allDifferent(timeslots).post();
-//
-//
-//		// Min/ Max nb of slots (disMin) between lectures of same course
-//		for(int i = 0; i < m.data.courses; i++) {
-//			for(int j = 1; j < m.data.lectures; j++) {
-//				//timeslots[j]-timeslots[j-1] > minDisInSlots
-//				timeslots[i*m.data.lectures+j].sub(timeslots[i*m.data.lectures+(j-1)]).gt(m.param.minDisInSlot).post();
-//				//timeslots[j]-timeslots[j-1] < maxDisInSlots
-//				timeslots[i*m.data.lectures+j].sub(timeslots[i*m.data.lectures+(j-1)]).lt(m.param.maxDisInDays).post();
-//			}
-//		}
-//
-//		// Max nb of different days of the week for a course
-//		for (int i = 0; i < m.data.courses; i++) {
-//			model.nValues(D[i],model.intVar(m.param.maxDiffDaysForACourse)).post();
-//		}
-//
-//		// Max nb of week for a course
-//		for (int i = 0; i < m.data.courses; i++) {
-//			model.atMostNValues(W[i],model.intVar(m.param.maxWeeksForCourse),true).post();
-//		}
-//		//the course should be in the same period of day
-//		for (int i = 0; i < m.data.courses; i++) {
-//			model.allEqual(T[i]).post();
-//		}
+
+
+		// Min/ Max nb of slots (disMin) between lectures of same course
+		for(int i = 0; i < m.data.courses; i++) {
+			for(int j = 1; j < m.data.lectures; j++) {
+				//timeslots[j]-timeslots[j-1] > minDisInSlots
+				timeslots[i*m.data.lectures+j].sub(timeslots[i*m.data.lectures+(j-1)]).ge(ConstraintParameters.minDisInSlots).post();
+				//timeslots[j]-timeslots[j-1] < maxDisInSlots
+				timeslots[i*m.data.lectures+j].sub(timeslots[i*m.data.lectures+(j-1)]).le(ConstraintParameters.maxDisInSlots).post();
+			}
+		}
+
+		// Max nb of different days of the week for a course
+		for (int i = 0; i < m.data.courses; i++) {
+			model.nValues(D[i],model.intVar(ConstraintParameters.maxDiffDaysForACourse)).post();
+		}
+
+		// Max nb of week for a course
+		for (int i = 0; i < m.data.courses; i++) {
+			model.atMostNValues(W[i],model.intVar(ConstraintParameters.maxWeeksForCourse),true).post();
+		}
+
+		// The course should be in the same period of day
+		for (int i = 0; i < m.data.courses; i++) {
+			model.allEqual(T[i]).post();
+		}
 
 
 		/*int timeSlotperWeek = m.data.days * m.data.timesOfDay;
@@ -133,34 +135,33 @@ public class IntegerModel {
 
 		Solver solver = model.getSolver();
 		int i = 1;
-		while(solver.solve()){
-			System.out.println("Solution n° "+i);
-			m.printSolution(W,D,T);
-			i++;
-			System.out.println();
-		}
-/*		Solution solution = solver.findSolution();
+//		while(solver.solve()){
+//			System.out.println("Solution n° "+i);
+//			m.printSolution(W,D,T);
+//			i++;
+//			System.out.println();
+//		}
+		Solution solution = solver.findSolution();
 
 		if(solution != null) {
 			m.printSolution(W,D,T);
-			//m.print(W,D,T);
-			ArrayList<Integer> timeSlotsArray = new ArrayList<>();
-			for (int i = 0; i < size; i++) {
-				timeSlotsArray.set(i,timeslots[i].getValue());
-			}
-			ArrayList<Integer> sortedCourses = new ArrayList<>();
-			for (int i = 0; i< size; i++) {
-				sortedCourses.set(i, timeSlotsArray.indexOf(i));
-			}
-			for (int i = 0; i < m.data.courses; i++) {
-				for (int j = 0; j < m.data.lectures; j++) {
-				//	sortedCourses.set(,i*m.data.lectures+j);
-				}
-			}
-		}*/
+//			//m.print(W,D,T);
+//			ArrayList<Integer> timeSlotsArray = new ArrayList<>();
+//			for (int i = 0; i < size; i++) {
+//				timeSlotsArray.set(i,timeslots[i].getValue());
+//			}
+//			ArrayList<Integer> sortedCourses = new ArrayList<>();
+//			for (int i = 0; i< size; i++) {
+//				sortedCourses.set(i, timeSlotsArray.indexOf(i));
+//			}
+//			for (int i = 0; i < m.data.courses; i++) {
+//				for (int j = 0; j < m.data.lectures; j++) {
+//				//	sortedCourses.set(,i*m.data.lectures+j);
+//				}
+//			}
+		}
 	}
 
-	// pas trop de cours en simultané
 	public void printSolution(IntVar[][] W,IntVar[][] D,IntVar[][] T){
 		for (int i = 0; i< data.courses; i++) {
 			for (int j= 0 ;j< data.lectures;j++){
@@ -168,7 +169,4 @@ public class IntegerModel {
 			}
 		}
 	}
-
-//Data(3, 4, 2, 2, 3,1,10,3,3)
-
 }
