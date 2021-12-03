@@ -11,11 +11,13 @@ import java.util.ArrayList;
 public class IntegerModel {
 	Data data;
 	Model model;
+	Boolean printOnSolution;
 
-	public IntegerModel(Data data) {
+	public IntegerModel(Data data,Boolean printOnSolution) {
 		this.data = data;
 		// Declaring model
 		model = new Model("Timetabling problem");
+		this.printOnSolution = printOnSolution;
 	}
 
 	public Model getModel() {
@@ -24,7 +26,7 @@ public class IntegerModel {
 
 	public static void main(String[] args) {
 		Data d = Instances.small1;
-		IntegerModel integerModel = new IntegerModel(d);//verbose
+		IntegerModel integerModel = new IntegerModel(d,false);//verbose
 		// build and solve
 		integerModel.buildAndSolve();
 	}
@@ -52,39 +54,45 @@ public class IntegerModel {
 		//one lecture per time slot
 		OneLecturePerTimeSlotConstraint(timeslots);
 
+		// lecture of a course are ordered
+		orderLecturesConstraint(timeslots);
+
 		// Min/ Max nb of slots (disMin) between lectures of same course
 		minMaxDistanceConstraint(timeslots);
 
-		// Max nb of different days of the week for a course
+		 //Max nb of different days of the week for a course
 		maxNbDaysConstraint(D);
 
-		// Max nb of week for a course
+		 //Max nb of week for a course
 		maxNbWeekConstraint(W);
 
-		// The course should be in the same period of day
+		 //The course should be in the same period of day
 		samePeriodOfDayConstraint(T);
 
-		// No empty week
+		 //No empty week
 		noEmptyWeekConst(W);
 
 		// Solving
 
-		Solver solver = getModel().getSolver();
-//		int i = 1;
-//		while(solver.solve()){
-//			System.out.println("Solution n° "+i);
-//			printSolution(W,D,T);
-//			i++;
-//			System.out.println();
-//		}
-		Solution solution = solver.findSolution();
 
-		if(solution != null) {
-			System.out.println("Timetabling by Courses");
-			printSolutionPerCourse(W,D,T);
-			printSolutionPerWeek(timeslots);
+		Solver solver = getModel().getSolver();
+		if (printOnSolution){
+			Solution solution = solver.findSolution();
+			if(solution != null) {
+					printSolutionPerWeek(timeslots);
+				//	printSolutionPerCourse(W,D,T);
+			}
+			// print all solutions
+//			while(solver.solve()){
+//				printSolutionPerWeek(timeslots);
+//			}
+
+		}else{
+			solver.findAllSolutions();
+			System.out.println("Solution Count "+solver.getSolutionCount());
 		}
 	}
+
 
 	private  void samePeriodOfDayConstraint(IntVar[][] t) {
 		for (int i = 0; i < data.courses; i++) {
@@ -103,6 +111,15 @@ public class IntegerModel {
 			getModel().nValues(d[i], getModel().intVar(ConstraintParameters.maxDiffDaysForACourse)).post();
 		}
 	}
+	private  void orderLecturesConstraint( IntVar[] timeslots) {
+		for(int i = 0; i < data.courses; i++) {
+			for(int j = 1; j < data.lectures; j++) {
+				int first = i* data.lectures+j;
+				int next = i* data.lectures+(j-1);
+				timeslots[first].sub(timeslots[next]).ge(1).post();
+			}
+		}
+	}
 
 	private  void minMaxDistanceConstraint( IntVar[] timeslots) {
 		for(int i = 0; i < data.courses; i++) {
@@ -112,6 +129,7 @@ public class IntegerModel {
 				//timeslots[j]-timeslots[j-1] > minDisInSlots
 				timeslots[first].sub(timeslots[next]).ge(ConstraintParameters.minDisInSlots).post();
 				//timeslots[j]-timeslots[j-1] < maxDisInSlots
+
 				timeslots[first].sub(timeslots[next]).le(ConstraintParameters.maxDisInSlots).post();
 			}
 		}
@@ -149,8 +167,7 @@ public class IntegerModel {
 	}
 
 	public String courseAndLecture(int v){
-		int j;
-		int i;
+		int j,i;
 		for (i = 0; i < data.courses ; i++) {
 			for (j = 0; j < data.lectures && v!=i*data.lectures+j ; j++) {
 			}
@@ -161,6 +178,7 @@ public class IntegerModel {
 		return "";
 	}
 	public void printSolutionPerCourse(IntVar[][] W, IntVar[][] D, IntVar[][] T){
+		System.out.println("Timetabling by Courses");
 		for (int i = 0; i< data.courses; i++) {
 			for (int j= 0 ;j< data.lectures;j++){
 				System.out.println("Course "+i+" Lecture "+j+" Week "+W[i][j].getValue()+ " Day "+D[i][j].getValue()+" T "+T[i][j].getValue() );
@@ -169,7 +187,8 @@ public class IntegerModel {
 	}
 
 	public void printSolutionPerWeek(IntVar[] timeslots){
-		System.out.println("Timetabling by Week");
+		System.out.println("Timetabling by Week C0 = course0 L0 = Lecture 0");
+
 		int sizeTimeSlots =data.weeks*data.days*data.timesOfDay;
 		ArrayList<Integer> timeSlotsArray = new ArrayList<>();
 		for (int i = 0; i < sizeTimeSlots; i++) {
